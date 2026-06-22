@@ -1,0 +1,85 @@
+{
+  "issuerDid": "did:key:z6Mku68kyKo5WPjaVyUsSwaAC5SLYUdUHuDNbdvsPYhGVyFF",
+  "privateKeys": {
+    "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a": {
+      "alias": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+      "type": "Ed25519",
+      "privateKeyHex": "0ab69704be8b0a1158f0701b72cb0992ceddba6d37b1b78fd36bd19cd29583bcd975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a"
+    },
+    "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235": {
+      "alias": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+      "type": "Ed25519",
+      "privateKeyHex": "ffee529b09a8bf3dee9a749d51d0d2566cc48b113853da08302366115e08be37ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235"
+    }
+  },
+  "keys": {
+    "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a": {
+      "type": "Ed25519",
+      "kid": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+      "publicKeyHex": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+      "meta": {
+        "algorithms": [
+          "EdDSA",
+          "Ed25519"
+        ]
+      },
+      "kms": "local"
+    },
+    "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235": {
+      "type": "Ed25519",
+      "kid": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+      "publicKeyHex": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+      "meta": {
+        "algorithms": [
+          "EdDSA",
+          "Ed25519"
+        ]
+      },
+      "kms": "local"
+    }
+  },
+  "identifiers": {
+    "did:key:z6Mku68kyKo5WPjaVyUsSwaAC5SLYUdUHuDNbdvsPYhGVyFF": {
+      "did": "did:key:z6Mku68kyKo5WPjaVyUsSwaAC5SLYUdUHuDNbdvsPYhGVyFF",
+      "controllerKeyId": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+      "keys": [
+        {
+          "type": "Ed25519",
+          "kid": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+          "publicKeyHex": "d975de346a868dbfe95f6df2e9a80b1e722d3e848e5f613cf4f708d7344cf12a",
+          "meta": {
+            "algorithms": [
+              "EdDSA",
+              "Ed25519"
+            ]
+          },
+          "kms": "local"
+        }
+      ],
+      "services": [],
+      "provider": "did:key",
+      "alias": "goverment-kyc-authority"
+    },
+    "did:key:z6Mkr55NzcEgoeLyUALUJGA8SyqqswsK39f2SCawrx6y2uXJ": {
+      "did": "did:key:z6Mkr55NzcEgoeLyUALUJGA8SyqqswsK39f2SCawrx6y2uXJ",
+      "controllerKeyId": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+      "keys": [
+        {
+          "type": "Ed25519",
+          "kid": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+          "publicKeyHex": "ac9d67e49e3d907ee4b4ea52938288183d23bfa069ec7dfc699d56b400d8e235",
+          "meta": {
+            "algorithms": [
+              "EdDSA",
+              "Ed25519"
+            ]
+          },
+          "kms": "local"
+        }
+      ],
+      "services": [],
+      "provider": "did:key",
+      "alias": "citizen-0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+    }
+  }
+}

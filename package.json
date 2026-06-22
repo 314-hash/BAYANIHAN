@@ -1,0 +1,33 @@
+{
+  "name": "bayanihan-quantum-commerce-chain",
+  "version": "1.0.0",
+  "description": "Bayanihan Quantum Commerce Chain - Phase 2 Advanced Smart Contract Suite",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "kyc-init": "node veramo-kyc/cli.js init",
+    "kyc-issue": "node veramo-kyc/cli.js issue",
+    "kyc-verify": "node veramo-kyc/cli.js verify",
+    "dev": "npx -y http-server frontend -p 3000",
+    "frontend": "npx -y http-server frontend -p 3000"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.5"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.6",
+    "@veramo/core": "^6.0.0",
+    "@veramo/key-manager": "^6.0.0",
+    "@veramo/kms-local": "^6.0.0",
+    "@veramo/did-manager": "^6.0.0",
+    "@veramo/did-provider-key": "^6.0.0",
+    "@veramo/did-resolver": "^6.0.0",
+    "@veramo/credential-w3c": "^6.0.0",
+    "ethers": "^6.7.0",
+    "dotenv": "^16.4.5"
+  }
+}
+

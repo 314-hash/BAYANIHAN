@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🇵🇭 Bayanihan Quantum Commerce Chain - Web Portal</title>
+  <meta name="description" content="Decentralized, secure, and compliant digital nation economic operating system for every Filipino.">
+  
+  <!-- Google Fonts: Outfit (Brand/Headers) and Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Wallet Connect -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <svg class="brand-logo" viewBox="0 0 100 100" width="50" height="50">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <polygon points="50,15 54,27 67,27 56,35 60,47 50,39 40,47 44,35 33,27 46,27" fill="var(--gold)"/>
+          <path d="M25,65 Q50,90 75,65" fill="none" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+          <path d="M20,60 Q50,30 80,60" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="10" fill="var(--dark-bg)"/>
+          <path d="M47,45 L53,45 L53,50 L47,50 Z M45,50 L55,50 L55,58 L45,58 Z" fill="var(--gold)"/>
+        </svg>
+        <div class="logo-text">
+          <h1>BΛYΛNIHΛN</h1>
+          <p>QUANTUM COMMERCE CHAIN</p>
+        </div>
+      </div>
+      
+      <div class="wallet-actions">
+        <button id="toggleGuideBtn" class="guide-toggle-btn">📖 Learn & Guide</button>
+        <div id="netStatus" class="network-badge">Local Simulator</div>
+        <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Stats Bar -->
+  <section class="stats-bar">
+    <div class="stat-card">
+      <span class="stat-label">Total Escrow Locked</span>
+      <span id="statLocked" class="stat-value">5,250 BAYANI</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Treasury Rewards Disbursed</span>
+      <span id="statRewards" class="stat-value">124,830 BAYANI</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Energy Credits Active</span>
+      <span id="statEnergy" class="stat-value">18,402 kWh</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Active Citizens Verified</span>
+      <span id="statCitizens" class="stat-value">1,402 Profile SBTs</span>
+    </div>
+  </section>
+
+  <!-- Guided Help Center for Non-Techy Users -->
+  <section class="help-section-container" id="helpSection" style="display: none;">
+    <div class="help-guide-card card">
+      <div class="help-guide-header">
+        <div class="help-guide-title-area">
+          <span class="help-guide-icon">🇵🇭</span>
+          <h3>Bayanihan Citizen & Merchant Help Center</h3>
+        </div>
+        <button id="closeHelpBtn" class="close-help-btn" onclick="toggleHelpBanner()">Close Guide</button>
+      </div>
+      <p class="help-guide-intro">
+        Welcome to the Bayanihan Economic Operating System! This is a digital system built to empower Philippine agriculture, local commerce, freelancers, and OFW networks. It runs on a public blockchain ledger using secure role identities (SBTs) and automated rules to protect transactions, eliminating secondary speculation and direct fiat deposit risks.
+      </p>
+      
+      <div class="guide-steps-grid">
+        <div class="guide-step">
+          <div class="step-header-row">
+            <span class="step-badge">1</span>
+            <h4>Simulate a Role</h4>
+          </div>
+          <p>Choose a citizen role in the sidebar (e.g. Farmer, MSME, Freelancer, OFW). The dashboard adapts to highlight relevant actions for that job.</p>
+        </div>
+        <div class="guide-step">
+          <div class="step-header-row">
+            <span class="step-badge">2</span>
+            <h4>Try Ecosystem Actions</h4>
+          </div>
+          <p>Click the tabs to run activities: register crop harvests, record business sales, open client escrows, vote in Barangay proposals, or buy RWA utility shares.</p>
+        </div>
+        <div class="guide-step">
+          <div class="step-header-row">
+            <span class="step-badge">3</span>
+            <h4>Track Your Progress</h4>
+          </div>
+          <p>Watch your simulated <strong>BAYANI</strong> tokens, business credit ratings, and community impact scores react dynamically to your activity.</p>
+        </div>
+      </div>
+
+      <div class="help-glossary-section">
+        <h4 class="glossary-header">🔍 Non-Technical Web3 Glossary</h4>
+        <div class="glossary-grid">
+          <div class="glossary-item">
+            <span class="glossary-term">Soulbound Profile (SBT)</span>
+            <p class="glossary-definition">A digital identity card that belongs exclusively to you. Unlike standard tokens, it cannot be sold, traded, or transferred. This protects your reputation metrics from speculation and fraud.</p>
+          </div>
+          <div class="glossary-item">
+            <span class="glossary-term">Direct-To-Consumer (DTC)</span>
+            <p class="glossary-definition">Buying crops directly from local farmers without intermediate brokers. This ensures farmers earn fair returns and awards buyers a 3x BAYANI token incentive.</p>
+          </div>
+          <div class="glossary-item">
+            <span class="glossary-term">Escrow Contract</span>
+            <p class="glossary-definition">A secure digital lockbox. A client's funds are held safely by the contract and automatically released to the freelancer only after work milestones are submitted and approved.</p>
+          </div>
+          <div class="glossary-item">
+            <span class="glossary-term">Barangay DAO</span>
+            <p class="glossary-definition">Decentralized Autonomous Organization. A community democracy tool. Citizens stake tokens to boost voting weight on local infrastructure projects, with weight caps to maintain fair voting power.</p>
+          </div>
+          <div class="glossary-item">
+            <span class="glossary-term">Real-World Asset (RWA)</span>
+            <p class="glossary-definition">Fractional digital shares of physical community assets (like solar microgrids or crop warehouses). Return yields are distributed strictly as utility service discounts to comply with SEC rules.</p>
+          </div>
+          <div class="glossary-item">
+            <span class="glossary-term">Post-Quantum Keys (PQ)</span>
+            <p class="glossary-definition">State-of-the-art security keys. They safeguard your digital profile from future hacking by quantum computers. You can rotate and update them with a single click in the sidebar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Dashboard Layout -->
+  <main class="dashboard-layout">
+    
+    <!-- Sidebar: Quantum Identity (SBT Profile) -->
+    <aside class="profile-sidebar card">
+      <h2 class="section-title">🔐 Quantum Identity (SBT) <span class="help-tooltip-trigger" data-tooltip="Soulbound Token: A permanent, non-transferable digital ID card verifying your profile.">ℹ️</span></h2>
+      <div class="identity-card">
+        <div class="avatar-area">
+          <div class="avatar-circle">
+            <span id="avatarIcon">👨‍🌾</span>
+          </div>
+          <div class="id-details">
+            <h3 id="profileName">Juan Dela Cruz</h3>
+            <span id="idBadge" class="badge">Verified Farmer</span>
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <div class="info-row">
+            <span>National ID Hash:</span>
+            <code id="profileNid">NID_FARMER_11...</code>
+          </div>
+          <div class="info-row">
+            <span>Biometric State:</span>
+            <span id="profileBio" class="status-verified">Active Hash</span>
+          </div>
+          <div class="info-row">
+            <span>PQ Key Algo: <span class="help-tooltip-trigger" data-tooltip="Security protection against hacking from future quantum supercomputers.">ℹ️</span></span>
+            <span id="profileAlgo" class="badge-algo">CRYSTALS-Dilithium</span>
+          </div>
+        </div>
+
+        <!-- Simulated profile role swapping for demo flow convenience -->
+        <div class="role-selector">
+          <label for="simulateRole">Simulate Citizen Role:</label>
+          <select id="simulateRole" class="form-input">
+            <option value="1">Farmer (Pillar 1)</option>
+            <option value="2">Fisherfolk (Pillar 1)</option>
+            <option value="3">MSME Merchant (Pillar 2)</option>
+            <option value="4">Freelancer (Pillar 3)</option>
+            <option value="5">OFW Diaspora (Pillar 5)</option>
+            <option value="0">General Citizen</option>
+          </select>
+        </div>
+
+        <button id="rotateKeyBtn" class="secondary-btn">Simulate PQ Key Rotation</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Panels -->
+    <section class="content-dashboard">
+      
+      <!-- Tabs Navigation -->
+      <nav class="dashboard-tabs">
+        <button class="tab-link active" data-tab="tab-supply">🌾 Supply Chains</button>
+        <button class="tab-link" data-tab="tab-msme">🏪 MSME Credit</button>
+        <button class="tab-link" data-tab="tab-escrow">💼 Escrow</button>
+        <button class="tab-link" data-tab="tab-governance">🏘️ Governance</button>
+        <button class="tab-link" data-tab="tab-diaspora">🌏 Diaspora & RWAs</button>
+      </nav>
+
+      <!-- Tab Content 1: Supply Chains (Farmer & Fisherfolk) -->
+      <div id="tab-supply" class="tab-content active">
+        <div class="portal-grid">
+          <!-- Register Harvest -->
+          <div class="card">
+            <h3 class="card-title">👨‍🌾 Register Harvest / Catch <span class="help-tooltip-trigger" data-tooltip="Producers log crops/catches. Registers ownership as an NFT & awards rewards.">ℹ️</span></h3>
+            <p class="section-desc">Log your agricultural yield or fish catch on-chain. This mints a Certificate NFT to verify source provenance and records weather insurance eligibility.</p>
+            <form id="harvestForm" class="input-form">
+              <div class="form-group">
+                <label for="cropType">Produce / Catch Type:</label>
+                <input type="text" id="cropType" placeholder="e.g. Abaca Hemp, Tuna, Rice" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label for="volume">Volume / Weight (kg):</label>
+                <input type="number" id="volume" placeholder="e.g. 250" class="form-input" required>
+              </div>
+              
+              <div class="checkbox-group">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="organicProduce"> Organic Produce (2x Rewards) <span class="help-tooltip-trigger" data-tooltip="Verified pesticide-free methods award double BAYANI tokens.">ℹ️</span>
+                  <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-container">
+                  <input type="checkbox" id="climateFriendly" checked> Climate-Friendly (Parametric weather eligible) <span class="help-tooltip-trigger" data-tooltip="Eligible for automatic pay-out coverage if extreme weather strikes.">ℹ️</span>
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+              
+              <button type="submit" class="primary-btn">Mint Crop/Catch NFT</button>
+            </form>
+          </div>
+
+          <!-- Forward Marketplace -->
+          <div class="card">
+            <h3 class="card-title">🏪 Direct-To-Consumer Forward Marketplace <span class="help-tooltip-trigger" data-tooltip="Eliminates intermediaries. Buyers pay farmers directly on-chain.">ℹ️</span></h3>
+            <p class="section-desc">Purchase forward contracts directly from producers. DTC purchases award **3x rewards** to promote local trade.</p>
+            
+            <div class="marketplace-listings" id="listingsContainer">
+              <!-- Listings will render here dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: MSME Credit Hub -->
+      <div id="tab-msme" class="tab-content">
+        <div class="portal-grid">
+          <!-- MSME Profile and Score -->
+          <div class="card credit-rating-card">
+            <h3 class="card-title">📊 MSME Business Credit Rating <span class="help-tooltip-trigger" data-tooltip="A credit score built dynamically from verified sales volume and customer ratings.">ℹ️</span></h3>
+            <p class="section-desc">Your credit score is calculated directly from your transaction history. Higher scores decrease platform escrow fees and boost search rankings.</p>
+            
+            <div class="gauge-container">
+              <div class="credit-ring">
+                <svg viewBox="0 0 100 100" class="ring-svg">
+                  <circle cx="50" cy="50" r="40" class="ring-bg"/>
+                  <circle cx="50" cy="50" r="40" id="creditRingProgress" class="ring-fill" stroke-dasharray="251.2" stroke-dashoffset="100"/>
+                </svg>
+                <div class="gauge-text">
+                  <span id="creditScoreVal" class="score-number">650</span>
+                  <span class="score-label">Credit Rating</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tier-info">
+              <div class="tier-header">
+                <span>Active Tier:</span>
+                <span id="msmeTierBadge" class="badge">Silver Tier</span>
+              </div>
+              <p class="tier-perk" id="msmePerk">Perk: **15% discount** on marketplace fees + Medium Priority listings visibility.</p>
+            </div>
+          </div>
+
+          <!-- Logging Revenues & Reviews -->
+          <div class="card">
+            <h3 class="card-title">📈 Business Activity Log <span class="help-tooltip-trigger" data-tooltip="MSMEs log sales volumes here to prove active commercial trade.">ℹ️</span></h3>
+            <p class="section-desc">Log your sales volume and gather feedback to build creditworthiness on-chain without traditional banking paperwork.</p>
+            <form id="revenueForm" class="input-form">
+              <div class="form-group">
+                <label for="revAmount">Log Transaction Volume (BAYANI):</label>
+                <input type="number" id="revAmount" placeholder="e.g. 500" class="form-input" required>
+              </div>
+              <button type="submit" class="primary-btn">Record Revenue Volume</button>
+            </form>
+
+            <hr class="separator">
+
+            <div class="form-group">
+              <label>Customer Rating Feedback (Demo simulation):</label>
+              <div class="rating-stars">
+                <button class="star-btn" data-star="1">★</button>
+                <button class="star-btn" data-star="2">★</button>
+                <button class="star-btn" data-star="3">★</button>
+                <button class="star-btn" data-star="4">★</button>
+                <button class="star-btn" data-star="5">★</button>
+              </div>
+              <button id="submitFeedbackBtn" class="secondary-btn">Submit 5-Star Rating</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Escrow (FreelancerEscrow) -->
+      <div id="tab-escrow" class="tab-content">
+        <div class="portal-grid">
+          <!-- Create Escrow Project -->
+          <div class="card">
+            <h3 class="card-title">💼 Create Milestone Escrow Project <span class="help-tooltip-trigger" data-tooltip="Funds are locked in a secure smart contract container and released only when milestones are approved.">ℹ️</span></h3>
+            <p class="section-desc">Lock client funds in a secure digital lockbox. This guarantees payment to the freelancer once work is completed, and safety to the client.</p>
+            <form id="escrowForm" class="input-form">
+              <div class="form-group">
+                <label for="freelancerAddr">Freelancer Wallet Address:</label>
+                <input type="text" id="freelancerAddr" value="0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label for="projectBudget">Total Project Budget (BAYANI):</label>
+                <input type="number" id="projectBudget" placeholder="e.g. 1000" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label for="milestoneDeadline">Delivery Deadline (Days):</label>
+                <input type="number" id="milestoneDeadline" value="30" class="form-input" required>
+              </div>
+              
+              <div class="fee-estimate">
+                <span>Estimated Contract Fee: <span class="help-tooltip-trigger" data-tooltip="Fee is dynamically discounted based on the freelancer's rating.">ℹ️</span></span>
+                <span id="escrowFeeEstimate" class="fee-val">2.0% (Base fee)</span>
+              </div>
+              
+              <button type="submit" class="primary-btn">Fund and Open Escrow</button>
+            </form>
+          </div>
+
+          <!-- Active Escrows -->
+          <div class="card">
+            <h3 class="card-title">Active Escrow Contracts <span class="help-tooltip-trigger" data-tooltip="Track active projects, submit work, release budgets, or trigger disputes.">ℹ️</span></h3>
+            <p class="section-desc">Review your contracts. Freelancers click 'Submit Work' to trigger review, clients click 'Approve & Release' to pay, or raise disputes for arbitration.</p>
+            <div id="escrowList" class="escrow-list">
+              <!-- Active escrows render here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 4: Barangay DAO Governance -->
+      <div id="tab-governance" class="tab-content">
+        <div class="portal-grid">
+          <!-- Staking & Voting Power -->
+          <div class="card">
+            <h3 class="card-title">🗳️ Barangay DAO Governance <span class="help-tooltip-trigger" data-tooltip="Stake tokens to boost voting weight. Max power caps ensure a fair democratic system.">ℹ️</span></h3>
+            <p class="section-desc">Participate in community decisions. Staking BAYANI tokens adds to your base voting weight, letting you vote on community funding priorities.</p>
+            <div class="voting-power-widget">
+              <div class="vp-row">
+                <span>Base Citizenship Weight:</span>
+                <span class="vp-val">+100 Voting Units</span>
+              </div>
+              <div class="vp-row">
+                <span>Staking Power Booster:</span>
+                <span id="vpStakedBooster" class="vp-val">+0 Units</span>
+              </div>
+              <div class="vp-row total-power">
+                <span>Total Voting Power:</span>
+                <span id="vpTotal" class="vp-val">100 Units</span>
+              </div>
+            </div>
+
+            <hr class="separator">
+
+            <form id="stakeForm" class="input-form">
+              <div class="form-group">
+                <label for="stakeAmount">Stake BAYANI to Boost Power:</label>
+                <input type="number" id="stakeAmount" placeholder="e.g. 500" class="form-input" required>
+              </div>
+              <div class="btn-group">
+                <button type="button" id="stakeBtn" class="primary-btn">Stake tokens</button>
+                <button type="button" id="unstakeBtn" class="secondary-btn">Unstake tokens</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Proposals & Treasury -->
+          <div class="card">
+            <h3 class="card-title">Barangay Treasury & Proposals <span class="help-tooltip-trigger" data-tooltip="Voted and executed proposals allocate community funds automatically.">ℹ️</span></h3>
+            <p class="section-desc">Review proposals submitted by community members. Approved proposals trigger rewards or allocate funding directly from the cooperative reserves.</p>
+            <div class="treasury-status">
+              <span>Cooperative DAO Reserves:</span>
+              <span id="daoTreasuryBalance" class="treasury-val">4,250 BAYANI</span>
+            </div>
+            
+            <div id="proposalList" class="proposals-list">
+              <!-- DAO proposals render here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 5: Diaspora Network & RWA Tokenization -->
+      <div id="tab-diaspora" class="tab-content">
+        <div class="portal-grid">
+          <!-- OFW Remittance & Lending -->
+          <div class="card">
+            <h3 class="card-title">✈️ OFW Global Diaspora Network <span class="help-tooltip-trigger" data-tooltip="Empowers overseas Filipino workers to support local communities directly.">ℹ️</span></h3>
+            <p class="section-desc">Connect Filipino workers abroad to local cooperative loans, raising their Diaspora Impact Score and triggering treasury rewards.</p>
+            <div class="diaspora-impact">
+              <div class="impact-gauge">
+                <span id="diasporaScore" class="impact-val">85</span>
+                <span class="impact-lbl">Diaspora Impact Score</span>
+              </div>
+              <p class="impact-desc">Your score increases with investments, community lending, and local jobs created. Reaching 50-point milestones triggers **30 BAYANI** treasury rewards.</p>
+            </div>
+
+            <hr class="separator">
+
+            <h4 class="sub-heading">Fund Peer-to-Peer Relative Loans</h4>
+            <div id="lendingPoolList" class="lending-list">
+              <!-- Lending pools render here -->
+            </div>
+          </div>
+
+          <!-- RWA Asset Tokenization -->
+          <div class="card">
+            <h3 class="card-title">🏢 National Asset Tokenization (RWA) <span class="help-tooltip-trigger" data-tooltip="Fractional shares of local facilities like solar grids or crop warehouses.">ℹ️</span></h3>
+            <p class="section-desc">Own fractional digital shares of local facilities. Returns are distributed exclusively as utility service discounts (not cash dividends) to remain fully compliant with Philippine SEC guidelines.</p>
+            
+            <div id="rwaList" class="rwa-list">
+              <!-- RWAs render here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Interactive toast messages container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Loading MetaMask / Ethers dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>

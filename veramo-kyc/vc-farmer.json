@@ -1,0 +1,23 @@
+{
+  "credentialSubject": {
+    "citizenAddress": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "nationalIdHash": "NID_FARMER_11",
+    "biometricHash": "BIO_FARMER_HASH",
+    "identityType": 1,
+    "id": "did:key:z6Mkr55NzcEgoeLyUALUJGA8SyqqswsK39f2SCawrx6y2uXJ"
+  },
+  "issuer": {
+    "id": "did:key:z6Mku68kyKo5WPjaVyUsSwaAC5SLYUdUHuDNbdvsPYhGVyFF"
+  },
+  "type": [
+    "VerifiableCredential"
+  ],
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "issuanceDate": "2026-06-21T14:46:33.000Z",
+  "proof": {
+    "type": "JwtProof2020",
+    "jwt": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImNpdGl6ZW5BZGRyZXNzIjoiMHg3MDk5Nzk3MGM1MTgxMmRjM2EwMTBjN2QwMWI1MGUwZDE3ZGM3OWM4IiwibmF0aW9uYWxJZEhhc2giOiJOSURfRkFSTUVSXzExIiwiYmlvbWV0cmljSGFzaCI6IkJJT19GQVJNRVJfSEFTSCIsImlkZW50aXR5VHlwZSI6MX19LCJzdWIiOiJkaWQ6a2V5Ono2TWtyNTVOemNFZ29lTHlVQUxVSkdBOFN5cXFzd3NLMzlmMlNDYXdyeDZ5MnVYSiIsIm5iZiI6MTc4MjA1MzE5MywiaXNzIjoiZGlkOmtleTp6Nk1rdTY4a3lLbzVXUGphVnlVc1N3YUFDNVNMWVVkVUh1RE5iZHZzUFloR1Z5RkYifQ.YMU3z2qvdodq67RA0BgODLDiieNHO3v7w1brqL10EXh2QLY6BkljuhrUZmOGK4QCZCRAB0m8_O0tFY0hmnrlDg"
+  }
+}

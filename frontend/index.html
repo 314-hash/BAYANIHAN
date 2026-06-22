@@ -177,6 +177,29 @@
         </div>
 
         <button id="rotateKeyBtn" class="secondary-btn">Simulate PQ Key Rotation</button>
+
+        <!-- Veramo KYC Section -->
+        <div class="kyc-integration-section" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+          <h4 style="font-family:var(--font-header); font-size:0.85rem; color:var(--gold); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+            <span>🆔 Veramo KYC System</span>
+            <span class="badge" id="kycStatusBadge" style="font-size:0.6rem; padding:0.15rem 0.35rem; background:rgba(239,68,68,0.15); color:#ef4444; border-color:#ef4444;">Disconnected</span>
+          </h4>
+          
+          <div class="info-row" style="margin-bottom:0.5rem;">
+            <label style="font-size:0.7rem; color:var(--text-secondary); display:block; margin-bottom:0.2rem;">National ID Hash:</label>
+            <input type="text" id="kycNidHash" class="form-input" style="padding:0.35rem; font-size:0.75rem;" value="NID_FARMER_11" placeholder="Enter ID Hash">
+          </div>
+          
+          <div class="btn-group" style="grid-template-columns: 1fr; gap:0.4rem; margin-top:0.6rem;">
+            <button id="requestKycBtn" class="primary-btn btn-sm">1. Request Verifiable Credential</button>
+            <button id="bridgeKycBtn" class="secondary-btn btn-sm" disabled>2. Verify & Bridge On-Chain</button>
+          </div>
+          
+          <div id="vcOutputArea" style="display:none; margin-top:0.6rem;">
+            <label style="font-size:0.7rem; color:var(--text-secondary); display:block; margin-bottom:0.2rem;">Signed VC (Credential Subject):</label>
+            <textarea id="kycVcText" readonly style="width:100%; height:60px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:6px; font-family:monospace; font-size:0.65rem; color:var(--text-muted); padding:0.25rem; resize:none;"></textarea>
+          </div>
+        </div>
       </div>
     </aside>
 

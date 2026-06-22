@@ -48,6 +48,8 @@ const CONTRACT_ABIS = {
     "function listFutureHarvest(uint256 nftId, uint256 price, uint256 deliveryDeadline) external",
     "function buyFutureHarvest(uint256 listingId) external",
     "function confirmFutureHarvestDelivery(uint256 listingId, bool directToConsumer, bool exportSale) external",
+    "function cancelFutureHarvestListing(uint256 listingId) external",
+    "function refundFutureHarvest(uint256 listingId) external",
     "function getHarvestNFTCount() view returns (uint256)"
   ],
   FreelancerEscrow: [
@@ -55,8 +57,10 @@ const CONTRACT_ABIS = {
     "function submitMilestone(uint256 projectId) external",
     "function approveMilestone(uint256 projectId) external",
     "function disputeMilestone(uint256 projectId) external",
+    "function claimMilestoneRefund(uint256 projectId) external",
     "function calculateContractFeeBps(address freelancer) view returns (uint256)"
   ]
+
 };
 
 // Application State
@@ -182,6 +186,12 @@ const elements = {
   profileAlgo: document.getElementById("profileAlgo"),
   simulateRole: document.getElementById("simulateRole"),
   rotateKeyBtn: document.getElementById("rotateKeyBtn"),
+  kycStatusBadge: document.getElementById("kycStatusBadge"),
+  kycNidHash: document.getElementById("kycNidHash"),
+  requestKycBtn: document.getElementById("requestKycBtn"),
+  bridgeKycBtn: document.getElementById("bridgeKycBtn"),
+  vcOutputArea: document.getElementById("vcOutputArea"),
+  kycVcText: document.getElementById("kycVcText"),
   tabLinks: document.querySelectorAll(".tab-link"),
   tabContents: document.querySelectorAll(".tab-content"),
   harvestForm: document.getElementById("harvestForm"),
@@ -221,6 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupRoleChange();
   setupStarButtons();
   setupSimulationEvents();
+  setupKycEvents();
   renderMarketplace();
   renderEscrows();
   renderProposals();
@@ -397,6 +408,111 @@ elements.rotateKeyBtn.addEventListener("click", () => {
     showToast("Quantum Protection", "Post-Quantum Dilithium keys rotated and verified.", "success");
   }, 1000);
 });
+
+// Veramo KYC Integration Handlers
+async function checkKycServer() {
+  try {
+    const res = await fetch("http://127.0.0.1:3001/api/kyc/health");
+    if (res.ok) {
+      elements.kycStatusBadge.innerText = "API Connected";
+      elements.kycStatusBadge.style.background = "rgba(52,211,153,0.15)";
+      elements.kycStatusBadge.style.color = "#34d399";
+      elements.kycStatusBadge.style.borderColor = "#34d399";
+    }
+  } catch (err) {
+    console.warn("Veramo KYC server health check failed. Ensure it is running on port 3001.");
+  }
+}
+
+let currentSignedVc = null;
+
+function setupKycEvents() {
+  checkKycServer();
+
+  // 1. Request Verifiable Credential from Veramo API
+  elements.requestKycBtn.addEventListener("click", async () => {
+    const nidHash = elements.kycNidHash.value.trim();
+    if (!nidHash) {
+      showToast("KYC Error", "Please enter a valid National ID Hash.", "error");
+      return;
+    }
+
+    const citizenAddr = state.userAddress || "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+    const identityType = state.userRole !== undefined ? state.userRole : 1;
+
+    try {
+      showToast("Veramo KYC Request", "Requesting signed W3C VC from Veramo Issuer...", "info");
+      const res = await fetch("http://127.0.0.1:3001/api/kyc/issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          citizenAddress: citizenAddr,
+          nidHash: nidHash,
+          biometricHash: "BIO_FARMER_HASH",
+          identityType: identityType
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to issue VC.");
+      }
+
+      const data = await res.json();
+      currentSignedVc = data.verifiableCredential;
+
+      elements.vcOutputArea.style.display = "block";
+      elements.kycVcText.value = JSON.stringify(currentSignedVc.credentialSubject, null, 2);
+      elements.bridgeKycBtn.disabled = false;
+      
+      showToast("VC Issued!", "Verifiable Credential successfully signed by Government DID key.", "success");
+    } catch (err) {
+      showToast("Veramo KYC Error", err.message || "Failed to request VC.", "error");
+    }
+  });
+
+  // 2. Verify & Bridge VC On-Chain
+  elements.bridgeKycBtn.addEventListener("click", async () => {
+    if (!currentSignedVc) {
+      showToast("Bridge Error", "No VC found. Request one first.", "error");
+      return;
+    }
+
+    try {
+      showToast("Verification & Bridge", "Verifying VC and submitting on-chain transaction...", "info");
+      const res = await fetch("http://127.0.0.1:3001/api/kyc/bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vc: currentSignedVc })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Bridging failed.");
+      }
+
+      const data = await res.json();
+      showToast("Bridging Success!", "On-chain QuantumIdentity registry updated.", "success");
+
+      // Update local profile visual details
+      elements.profileNid.innerText = currentSignedVc.credentialSubject.nationalIdHash;
+      elements.profileBio.innerText = "Verified Active (VC)";
+      elements.profileBio.className = "status-verified";
+
+      if (data.bridgeResult && data.bridgeResult.txHash) {
+        console.log("Identity verification transaction:", data.bridgeResult.txHash);
+        showToast("Tx Confirmed", `Block: ${data.bridgeResult.blockNumber}, Hash: ${data.bridgeResult.txHash.substring(0, 10)}...`, "success");
+      }
+
+      if (state.web3Connected) {
+        await readOnChainState();
+      }
+    } catch (err) {
+      showToast("Bridge Error", err.message || "Failed to bridge to blockchain.", "error");
+    }
+  });
+}
+
 
 // Update MSME Credit Ring Gauge
 function updateCreditGauge() {
@@ -711,12 +827,20 @@ function renderMarketplace() {
     
     let btnHtml = "";
     if (item.status === "Listed") {
-      btnHtml = `<button class="primary-btn btn-sm" onclick="buyListing(${item.id})">Buy Contract</button>`;
+      btnHtml = `
+        <button class="primary-btn btn-sm" onclick="buyListing(${item.id})">Buy Contract</button>
+        <button class="danger-btn btn-sm" onclick="cancelListing(${item.id})">Cancel</button>
+      `;
     } else if (item.status === "Sold") {
       btnHtml = `
         <button class="secondary-btn btn-sm" onclick="confirmListing(${item.id}, true)">DTC Delivery (3x Rewards)</button>
         <button class="secondary-btn btn-sm" onclick="confirmListing(${item.id}, false)">Standard Delivery</button>
+        <button class="danger-btn btn-sm" style="margin-top:0.25rem;" onclick="refundListing(${item.id})">Refund (Breach)</button>
       `;
+    } else if (item.status === "Cancelled") {
+      btnHtml = `<span class="badge" style="background:rgba(239,68,68,0.12);color:#ef4444;border-color:#ef4444;">Cancelled</span>`;
+    } else if (item.status === "Refunded") {
+      btnHtml = `<span class="badge" style="background:rgba(239,68,68,0.12);color:#ef4444;border-color:#ef4444;">Refunded</span>`;
     } else {
       btnHtml = `<span class="badge" style="background:rgba(52,211,153,0.12);color:#34d399;border-color:#34d399;">Delivered</span>`;
     }
@@ -767,6 +891,49 @@ window.confirmListing = function(id, dtc) {
   showToast("Delivery Confirmed", `Fund released. Rewards issued: ${reward} BAYANI.`, "success");
 };
 
+window.cancelListing = async function(id) {
+  const item = state.marketplaceListings.find(l => l.id === id);
+  if (!item) return;
+
+  if (state.web3Connected) {
+    try {
+      showToast("Transaction Initiating", "Calling FarmerProsperity.cancelFutureHarvestListing...", "info");
+      const tx = await contracts.FarmerProsperity.cancelFutureHarvestListing(id);
+      await tx.wait();
+      showToast("Listing Cancelled!", "Your crop NFT has been returned to your wallet.", "success");
+      await readOnChainState();
+    } catch (error) {
+      showToast("On-Chain Error", error.message || "Failed to cancel listing", "error");
+    }
+  } else {
+    item.status = "Cancelled";
+    renderMarketplace();
+    showToast("Listing Cancelled", "Returned your Crop NFT to your wallet.", "success");
+  }
+};
+
+window.refundListing = async function(id) {
+  const item = state.marketplaceListings.find(l => l.id === id);
+  if (!item) return;
+
+  if (state.web3Connected) {
+    try {
+      showToast("Transaction Initiating", "Calling FarmerProsperity.refundFutureHarvest...", "info");
+      const tx = await contracts.FarmerProsperity.refundFutureHarvest(id);
+      await tx.wait();
+      showToast("Refund Completed!", "Escrowed payment has been refunded to your wallet.", "success");
+      await readOnChainState();
+    } catch (error) {
+      showToast("On-Chain Error", error.message || "Failed to claim refund", "error");
+    }
+  } else {
+    item.status = "Refunded";
+    state.simBalance += item.price;
+    renderMarketplace();
+    showToast("Refund Claimed", `Refunded ${item.price} BAYANI to your wallet.`, "success");
+  }
+};
+
 function renderEscrows() {
   elements.escrowList.innerHTML = "";
   
@@ -785,6 +952,7 @@ function renderEscrows() {
         <div class="escrow-actions">
           <button class="primary-btn" onclick="submitMilestone(${item.id})">Submit Work</button>
           <button class="secondary-btn" onclick="disputeEscrow(${item.id})">Raise Dispute</button>
+          <button class="danger-btn" style="grid-column: span 2; margin-top: 0.25rem;" onclick="refundMilestone(${item.id})">Reclaim Refund</button>
         </div>
       `;
     } else if (item.status === "Submitted") {
@@ -800,11 +968,18 @@ function renderEscrows() {
           ⚠️ Dispute under cooperative AI arbitration.
         </p>
       `;
+    } else if (item.status === "Refunded") {
+      actionsHtml = `
+        <p style="font-size:0.75rem;color:var(--red);text-align:center;padding-top:0.25rem;">
+          💸 Milestone refunded to client.
+        </p>
+      `;
     }
     
     let statusClass = "status-active";
     if (item.status === "Approved") statusClass = "status-completed";
     if (item.status === "Disputed") statusClass = "status-disputed";
+    if (item.status === "Refunded") statusClass = "status-disputed";
     
     cardEl.innerHTML = `
       <div class="escrow-row title-row">
@@ -854,6 +1029,28 @@ window.disputeEscrow = function(id) {
   item.status = "Disputed";
   renderEscrows();
   showToast("Dispute Raised", "Dispute submitted to Barangay cooperative resolution board.", "warning");
+};
+
+window.refundMilestone = async function(id) {
+  const item = state.activeEscrows.find(e => e.id === id);
+  if (!item) return;
+
+  if (state.web3Connected) {
+    try {
+      showToast("Transaction Initiating", "Calling FreelancerEscrow.claimMilestoneRefund...", "info");
+      const tx = await contracts.FreelancerEscrow.claimMilestoneRefund(id);
+      await tx.wait();
+      showToast("Refund Completed!", "Milestone funds have been refunded to your wallet.", "success");
+      await readOnChainState();
+    } catch (error) {
+      showToast("On-Chain Error", error.message || "Failed to claim refund", "error");
+    }
+  } else {
+    item.status = "Refunded";
+    state.simBalance += item.budget;
+    renderEscrows();
+    showToast("Refund Claimed", `Refunded ${item.budget} BAYANI to your wallet.`, "success");
+  }
 };
 
 function renderProposals() {

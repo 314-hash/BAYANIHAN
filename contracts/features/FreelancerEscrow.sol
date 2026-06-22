@@ -55,6 +55,7 @@ contract FreelancerEscrow is AccessControl, ReentrancyGuard, Pausable {
     event ProjectCreated(uint256 indexed projectId, address indexed client, address indexed freelancer, uint256 totalBudget);
     event MilestoneSubmitted(uint256 indexed projectId, uint256 indexed milestoneId);
     event MilestoneApproved(uint256 indexed projectId, uint256 indexed milestoneId, uint256 payoutAmount);
+    event MilestoneRefunded(uint256 indexed projectId, uint256 indexed milestoneId, uint256 refundAmount);
     event ProjectDisputed(uint256 indexed projectId, address indexed initiator);
     event DisputeResolved(uint256 indexed projectId, uint256 clientPayout, uint256 freelancerPayout);
     event ProjectCompleted(uint256 indexed projectId, uint8 rating, bool onTime, uint256 bonusAmount);
@@ -182,6 +183,33 @@ contract FreelancerEscrow is AccessControl, ReentrancyGuard, Pausable {
         bayaniToken.safeTransfer(proj.freelancer, netPayout);
 
         emit MilestoneApproved(projectId, activeIdx, netPayout);
+    }
+
+    function claimMilestoneRefund(uint256 projectId) external onlyClient(projectId) whenNotPaused nonReentrant {
+        Project storage proj = projects[projectId];
+        require(!proj.isCompleted, "Project completed");
+        require(!proj.isDisputed, "Project disputed");
+
+        uint256 activeIdx = currentMilestoneIndices[projectId];
+        require(activeIdx < milestoneCounts[projectId], "All milestones completed");
+
+        Milestone storage m = milestones[projectId][activeIdx];
+        require(!m.isSubmitted, "Milestone already submitted");
+        require(block.timestamp > m.deliveryDeadline, "Deadline has not passed");
+
+        uint256 refundAmount = m.amount;
+        proj.lockedAmount -= refundAmount;
+        
+        // Move to next milestone index
+        currentMilestoneIndices[projectId]++;
+        if (currentMilestoneIndices[projectId] == milestoneCounts[projectId]) {
+            proj.isCompleted = true;
+        }
+
+        // Return payment back to client
+        bayaniToken.safeTransfer(proj.client, refundAmount);
+
+        emit MilestoneRefunded(projectId, activeIdx, refundAmount);
     }
 
     function disputeProject(uint256 projectId) external whenNotPaused {

@@ -179,3 +179,88 @@ We verified the complete flow on the local Hardhat Node:
    - Tx Hash: 0x1ed458316c5688180374ed949626b16372c27d0fa837f8c4a739b007deb8274b
    - Confirmed in Block: 118
    ```
+
+---
+
+## 🔒 Mainnet-Readiness Enhancements (Phase 2 Update)
+
+To prepare the platform for secure mainnet deployment, we resolved locked-fund risks and double-selling vulnerabilities in the core transactional contracts:
+
+### 1. Escrow Lock & Protection in [`FarmerProsperity.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/FarmerProsperity.sol)
+* **True NFT Escrow:** When listing a future harvest via `listFutureHarvest()`, the dynamic Crop NFT is transferred from the farmer directly into the contract escrow (`address(this)`). This prevents double-selling or transferring the NFT elsewhere while it's active.
+* **Escrow Release:** When delivery is confirmed via `confirmFutureHarvestDelivery()`, the Crop NFT is transferred from the contract escrow directly to the buyer, and payment is forwarded to the farmer.
+* **Listing Cancellation:** Farmers can cancel active listings via `cancelFutureHarvestListing()` before a sale has occurred, returning the Crop NFT back to their wallet.
+* **Buyer Refund on Delivery Breach:** If the farmer fails to deliver before the contract's `deliveryDeadline`, the buyer can invoke `refundFutureHarvest()`. This returns the Crop NFT to the seller and refunds the locked BAYANI payment back to the buyer's wallet.
+
+### 2. Client-Reclaim Milestone Refunds in [`FreelancerEscrow.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/FreelancerEscrow.sol)
+* **Milestone Refund on Breach:** If a milestone's `deliveryDeadline` passes without the freelancer submitting work, the client can reclaim the locked milestone payment via `claimMilestoneRefund()`. This moves the active milestone index forward and restores funds back to the client's balance.
+
+### 3. Frontend Web3 Portal Updates
+* Exposed `cancelFutureHarvestListing`, `refundFutureHarvest`, and `claimMilestoneRefund` in the frontend minimal ABIs.
+* Enhanced the **Supply Chains (Marketplace)** and **Escrow** UI sections in [`app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js) and [`style.css`](file:///c:/Users/janla/Bayanihan/frontend/style.css):
+  * **Cancel Button:** Allows farmers to cancel listings.
+  * **Refund (Breach) Button:** Allows buyers to retrieve escrowed funds after a delivery deadline breach.
+  * **Reclaim Refund Button:** Spans full card width in the Escrow dashboard, allowing clients to refund milestone payments after deadlines expire.
+* Simulated state flows to support interactive testing in the browser simulator.
+
+### 4. Verification & Test Suite Execution
+We updated the imports in [`test/BayanihanSuite.test.js`](file:///c:/Users/janla/Bayanihan/test/BayanihanSuite.test.js) to ES Modules format to align with the ESM architecture in `package.json`. We ran `npx hardhat test`, verifying all 20 test cases pass:
+
+```text
+  Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite
+    QuantumIdentity Integration
+      √ Should allow registering and verifying different citizen types (88ms)
+      √ Should handle post-quantum key updates and social recovery (605ms)
+    AIReputationOracle Systems
+      √ Should set and get reputation scores securely
+      √ Should accept ECDSA signed reputation updates from oracle (148ms)
+    NationalRewardsTreasury Safety caps
+      √ Should enforce category percentage limits on payouts (425ms)
+    FarmerProsperity Economic Logic
+      √ Should register harvest with crop NFT and Organic 2x rewards (49ms)
+      √ Should allow future harvest forward sale marketplace transactions (132ms)
+      √ Should allow a farmer to cancel a listed harvest before it is sold (71ms)
+      √ Should allow a buyer to request a refund if the delivery deadline has passed (120ms)
+    FisherfolkRewards Traceability & Conservation
+      √ Should log catches, verify sustainability scores, and reward conservation (190ms)
+    MSMEGrowth Metrics & Rewards
+      √ Should track revenue, ratings, and upgrade merchant tiers (100ms)
+    FreelancerEscrow Escrow Milestones
+      √ Should manage payments and rating-based reputation rewards (124ms)
+      √ Should allow a client to reclaim milestone funds if the deadline has passed without submission (119ms)
+    RenewableEnergy Telemetry Logs
+      √ Should verify smart meter generations and manage community energy pool (98ms)
+    BarangayDAO Proposal Voting
+      √ Should allow democratic voting with power caps and execute funding (216ms)
+    HealthcareAssistance Pool Management
+      √ Should deposit savings, contribute to mutual insurance, and execute claims (187ms)
+    HousingCooperative mortgages
+      √ Should manage shared equity funding and mortgages (172ms)
+    DiasporaNetwork OFW Lending
+      √ Should register OFWs, open community loans, and track jobs created (80ms)
+    NationalAssetTokenization Compliance & Yields
+      √ Should tokenize dry warehouses and distribute non-dividend utility discount credits (97ms)
+    BayaniLegacy Trusts & Rewards
+      √ Should setup trust vaults, enforce succession payouts, and reward builder statuses (87ms)
+
+  20 passing (12s)
+```
+
+---
+
+## 🆔 Veramo KYC API Server Integration (Phase 2 Update)
+
+We built and integrated a Web3 KYC API Server to allow the frontend web portal to trigger W3C Verifiable Credential issuance and bridge the verified identity state onto the blockchain:
+
+### 1. Veramo KYC Server Wrapper ([`veramo-kyc/server.js`](file:///c:/Users/janla/Bayanihan/veramo-kyc/server.js))
+* Built an Express.js API server exposing endpoints on port `3001` with full CORS support.
+* **`POST /api/kyc/issue`**: Accepts the citizen's address, national ID hash, biometric hash, and citizen role type. It manages DID key generation for the citizen and signs a W3C Verifiable Credential (VC) JWT using the government authority DID.
+* **`POST /api/kyc/verify`**: Validates a VC's signature and claims.
+* **`POST /api/kyc/bridge`**: Validates a VC's signature, extracts the verified subject claims, and uses the authority's private key to submit the verification transaction on-chain via [`QuantumIdentity.sol`](file:///c:/Users/janla/Bayanihan/contracts/core/QuantumIdentity.sol).
+
+### 2. Frontend Web Portal Integration
+* **KYC Sidebar Panel**: Added a dedicated **Veramo KYC System** widget inside the profile sidebar of [`index.html`](file:///c:/Users/janla/Bayanihan/frontend/index.html).
+* **API Health Check**: [`app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js) automatically polls the health endpoint on startup, displaying a green **API Connected** badge when the Express KYC server is running.
+* **VC Issuance Flow**: Users can input their National ID Hash and click **1. Request Verifiable Credential**, which calls the API and prints the signed VC claim subject to a text area.
+* **Blockchain Bridging Flow**: Clicking **2. Verify & Bridge On-Chain** sends the VC back to the server, verifying it and bridging the profile state onto the blockchain. The UI automatically displays the tx hash and updates the citizen's Biometric State to **Verified Active (VC)** in green.
+

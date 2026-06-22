@@ -10,6 +10,7 @@
     "kyc-init": "node veramo-kyc/cli.js init",
     "kyc-issue": "node veramo-kyc/cli.js issue",
     "kyc-verify": "node veramo-kyc/cli.js verify",
+    "kyc-server": "node veramo-kyc/server.js",
     "dev": "npx -y http-server frontend -p 3000",
     "frontend": "npx -y http-server frontend -p 3000"
   },
@@ -20,14 +21,15 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6",
     "@veramo/core": "^6.0.0",
-    "@veramo/key-manager": "^6.0.0",
-    "@veramo/kms-local": "^6.0.0",
+    "@veramo/credential-w3c": "^6.0.0",
     "@veramo/did-manager": "^6.0.0",
     "@veramo/did-provider-key": "^6.0.0",
     "@veramo/did-resolver": "^6.0.0",
-    "@veramo/credential-w3c": "^6.0.0",
+    "@veramo/key-manager": "^6.0.0",
+    "@veramo/kms-local": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
     "ethers": "^6.7.0",
-    "dotenv": "^16.4.5"
+    "express": "^5.2.1"
   }
 }
-

@@ -58,6 +58,8 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
     event FutureHarvestListed(uint256 indexed listingId, address indexed seller, uint256 cropNftId, uint256 price);
     event FutureHarvestSold(uint256 indexed listingId, address indexed buyer);
     event FutureHarvestDelivered(uint256 indexed listingId, bool isDirectToConsumer, bool isExport, uint256 bonusReward);
+    event FutureHarvestCancelled(uint256 indexed listingId, address indexed seller);
+    event FutureHarvestRefunded(uint256 indexed listingId, address indexed buyer, uint256 refundAmount);
     event InsurancePaid(uint256 indexed nftId, address indexed farmer, uint256 premium);
     event InsuranceClaimTriggered(uint256 indexed nftId, address indexed farmer, uint256 payout);
 
@@ -130,7 +132,7 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         uint256 cropNftId,
         uint256 price,
         uint256 deliveryDeadline
-    ) external onlyVerifiedFarmer whenNotPaused {
+    ) external onlyVerifiedFarmer whenNotPaused nonReentrant {
         require(cropNft.balanceOf(msg.sender, cropNftId) == 1, "Must own Crop NFT to list");
         require(deliveryDeadline > block.timestamp, "Invalid deadline");
 
@@ -146,7 +148,9 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
             isCancelled: false
         });
 
-        // Lock Crop NFT in listing escrow (handled by transfer approval, we check ownership when listed)
+        // Lock Crop NFT in listing escrow within this contract to protect buyers
+        cropNft.safeTransferFrom(msg.sender, address(this), cropNftId, 1, "");
+
         emit FutureHarvestListed(listingCounter, msg.sender, cropNftId, price);
     }
 
@@ -177,8 +181,8 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
 
         listing.isDelivered = true;
 
-        // Release crop certificate transfer to buyer
-        cropNft.safeTransferFrom(listing.seller, listing.buyer, listing.cropNftId, 1, "");
+        // Release crop certificate transfer to buyer from contract escrow
+        cropNft.safeTransferFrom(address(this), listing.buyer, listing.cropNftId, 1, "");
 
         // Transfer escrowed payment to farmer
         bayaniToken.safeTransfer(listing.seller, listing.price);
@@ -203,6 +207,39 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         }
 
         emit FutureHarvestDelivered(listingId, isDirectToConsumer, isExport, bonusReward);
+    }
+
+    function cancelFutureHarvestListing(uint256 listingId) external whenNotPaused nonReentrant {
+        FutureHarvestListing storage listing = listings[listingId];
+        require(msg.sender == listing.seller, "Only seller can cancel");
+        require(!listing.isSold, "Already sold");
+        require(!listing.isCancelled, "Already cancelled");
+
+        listing.isCancelled = true;
+
+        // Return Crop NFT from contract escrow back to farmer
+        cropNft.safeTransferFrom(address(this), listing.seller, listing.cropNftId, 1, "");
+
+        emit FutureHarvestCancelled(listingId, msg.sender);
+    }
+
+    function refundFutureHarvest(uint256 listingId) external whenNotPaused nonReentrant {
+        FutureHarvestListing storage listing = listings[listingId];
+        require(msg.sender == listing.buyer, "Only buyer can request refund");
+        require(listing.isSold, "Not sold");
+        require(!listing.isDelivered, "Already delivered");
+        require(!listing.isCancelled, "Already cancelled");
+        require(block.timestamp > listing.deliveryDeadline, "Delivery deadline has not passed");
+
+        listing.isCancelled = true;
+
+        // Return Crop NFT from contract escrow back to farmer
+        cropNft.safeTransferFrom(address(this), listing.seller, listing.cropNftId, 1, "");
+
+        // Refund escrowed payment back to buyer
+        bayaniToken.safeTransfer(listing.buyer, listing.price);
+
+        emit FutureHarvestRefunded(listingId, listing.buyer, listing.price);
     }
 
     function payInsurancePremium(uint256 cropNftId, uint256 premiumAmount) external onlyVerifiedFarmer whenNotPaused nonReentrant {

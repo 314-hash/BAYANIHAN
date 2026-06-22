@@ -1,5 +1,6 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import pkg from "hardhat";
+const { ethers } = pkg;
 
 describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function () {
   let deployer, governor, validator, oracle, client, freelancer, farmer, fisher, ofw, buyer, guardian1, guardian2;
@@ -320,6 +321,65 @@ describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function (
       const farmerBalAfter = await bayaniToken.balanceOf(farmer.address);
       expect(farmerBalAfter - farmerBalBefore).to.equal(price + ethers.parseEther("30"));
     });
+
+    it("Should allow a farmer to cancel a listed harvest before it is sold", async function () {
+      // Register another harvest
+      await farmerProsperity.connect(farmer).registerHarvest("Rice Organic", 50, true, false, false);
+      const nftId = 2; // Second harvest NFT
+      const price = ethers.parseEther("100");
+      const deadline = (await ethers.provider.getBlock("latest")).timestamp + 86400; // 1 day
+
+      // List it
+      await farmerProsperity.connect(farmer).listFutureHarvest(nftId, price, deadline);
+
+      // Verify the NFT is now locked in the FarmerProsperity contract
+      expect(await bayaniNFT.balanceOf(await farmerProsperity.getAddress(), nftId)).to.equal(1);
+      expect(await bayaniNFT.balanceOf(farmer.address, nftId)).to.equal(0);
+
+      // Cancel the listing
+      await expect(farmerProsperity.connect(farmer).cancelFutureHarvestListing(2)) // Listing ID 2
+        .to.emit(farmerProsperity, "FutureHarvestCancelled");
+
+      // Verify the NFT is returned back to the farmer
+      expect(await bayaniNFT.balanceOf(farmer.address, nftId)).to.equal(1);
+      expect(await bayaniNFT.balanceOf(await farmerProsperity.getAddress(), nftId)).to.equal(0);
+    });
+
+    it("Should allow a buyer to request a refund if the delivery deadline has passed", async function () {
+      // Register and list a harvest
+      await farmerProsperity.connect(farmer).registerHarvest("Banana", 30, false, false, false);
+      const nftId = 3;
+      const price = ethers.parseEther("80");
+      
+      // Short deadline: 10 seconds in the future
+      const deadline = (await ethers.provider.getBlock("latest")).timestamp + 10;
+
+      await farmerProsperity.connect(farmer).listFutureHarvest(nftId, price, deadline);
+
+      // Buy it
+      await bayaniToken.connect(buyer).approve(await farmerProsperity.getAddress(), price);
+      await farmerProsperity.connect(buyer).buyFutureHarvest(3); // Listing ID 3
+
+      // Try to refund immediately (should fail since deadline has not passed)
+      await expect(farmerProsperity.connect(buyer).refundFutureHarvest(3))
+        .to.be.revertedWith("Delivery deadline has not passed");
+
+      // Fast forward time past the deadline (increase by 20 seconds)
+      await ethers.provider.send("evm_increaseTime", [20]);
+      await ethers.provider.send("evm_mine");
+
+      // Refund the payment
+      const buyerBalBefore = await bayaniToken.balanceOf(buyer.address);
+      
+      await expect(farmerProsperity.connect(buyer).refundFutureHarvest(3))
+        .to.emit(farmerProsperity, "FutureHarvestRefunded");
+
+      const buyerBalAfter = await bayaniToken.balanceOf(buyer.address);
+      expect(buyerBalAfter - buyerBalBefore).to.equal(price);
+
+      // Verify the NFT is returned to the farmer
+      expect(await bayaniNFT.balanceOf(farmer.address, nftId)).to.equal(1);
+    });
   });
 
   describe("FisherfolkRewards Traceability & Conservation", function () {
@@ -404,6 +464,40 @@ describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function (
       
       const freeBalAfterComplete = await bayaniToken.balanceOf(freelancer.address);
       expect(freeBalAfterComplete - freeBalBeforeComplete).to.equal(ethers.parseEther("15"));
+    });
+
+    it("Should allow a client to reclaim milestone funds if the deadline has passed without submission", async function () {
+      const budget = ethers.parseEther("200");
+      
+      // Client approves escrow deposit (200 BAYANI)
+      await bayaniToken.connect(client).approve(await freelancerEscrow.getAddress(), budget);
+      
+      // Create project with 1 milestone (200 BAYANI) and short deadline (10 seconds)
+      const milestoneAmount = [budget];
+      const milestoneDeadline = [(await ethers.provider.getBlock("latest")).timestamp + 10];
+      
+      await freelancerEscrow.connect(client).createProject(freelancer.address, milestoneAmount, milestoneDeadline); // Project ID 2
+
+      // Try to refund immediately (should fail since deadline has not passed)
+      await expect(freelancerEscrow.connect(client).claimMilestoneRefund(2))
+        .to.be.revertedWith("Deadline has not passed");
+
+      // Fast forward time past the deadline (20 seconds)
+      await ethers.provider.send("evm_increaseTime", [20]);
+      await ethers.provider.send("evm_mine");
+
+      // Refund the milestone budget
+      const clientBalBefore = await bayaniToken.balanceOf(client.address);
+      
+      await expect(freelancerEscrow.connect(client).claimMilestoneRefund(2))
+        .to.emit(freelancerEscrow, "MilestoneRefunded");
+
+      const clientBalAfter = await bayaniToken.balanceOf(client.address);
+      expect(clientBalAfter - clientBalBefore).to.equal(budget);
+
+      // Check that the project is marked completed
+      const proj = await freelancerEscrow.projects(2);
+      expect(proj.isCompleted).to.be.true;
     });
   });
 

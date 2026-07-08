@@ -160,9 +160,9 @@ DAO governance tools.         rice, tuna) for DTC logistics. produce at 20% disc
 
 We have transformed the initial concept into an enterprise-ready, compiled, and tested codebase:
 
-* **15 Smart Contracts Deployed & Tested:** Complete core, feature, and mock ecosystem compiled under Solidity `0.8.20`.
-* **100% Test Coverage:** Hardhat automated testing suite covers all scenarios, verifying role-based access control, escrow settlements, weather insurance payouts, reputation scoring, and social recovery features.
-* **Veramo DID KYC CLI Integrated:** A fully functional command-line utility is built to issue, sign, and verify W3C credentials, bridging off-chain identity to the secure on-chain identity registry.
+* **Smart Contract Suite & Hardening Complete:** Complete core, feature, and mock ecosystem compiled under Solidity `0.8.20` with strict 100B hard caps and treasury-routed crop insurance solvency pools.
+* **100% Test Coverage & Static Audits:** Hardhat automated suite covers all scenarios with 21 integration tests. The code is audited via the automated **Slither** static analysis framework.
+* **Veramo & OpenBao Integration:** Integrated W3C credentials using Veramo and secured private keys using **OpenBao Secrets Manager** to eliminate plain-text key exposure.
 
 ---
 

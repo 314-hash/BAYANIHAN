@@ -24,8 +24,8 @@ To create competitive tension and FOMO (Fear Of Missing Out) among VCs, all firs
  └─ Filter for high-conviction VCs to transition to due diligence.
 
  Weeks 7-9: Due Diligence & Partner Meetings
- ├─ Share tech repository (15 contracts with 100% test coverage) and tokenomics modeling.
- ├─ Run technical deep-dives (QuantumIdentity.sol, AIReputationOracle.sol).
+ ├─ Share tech repository (smart contracts with 100% test coverage, Slither configs) and tokenomics modeling.
+ ├─ Run technical deep-dives (QuantumIdentity.sol, AIReputationOracle.sol, OpenBao integrations).
  └─ Schedule Partner Meetings with leading VCs.
 
  Weeks 10-12: Term Sheet Negotiations & Closing

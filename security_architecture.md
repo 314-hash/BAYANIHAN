@@ -116,6 +116,9 @@ This ensures:
 ### B. AI Credit Score Authenticity
 Similarly, the [`AIReputationOracle.sol`](file:///c:/Users/janla/Bayanihan/contracts/core/AIReputationOracle.sol) validates credit and reputation updates from off-chain analysis nodes by validating the signature of an authorized public key (`REPUTATION_ORACLE_ROLE`) on-chain.
 
+### C. Off-Chain Private Key Protection (OpenBao Secrets Manager)
+To prevent plain-text exposure of private keys for the validator nodes and oracle authorities, the KYC bridging server retrieves signing credentials dynamically at runtime from an **OpenBao Secrets Manager** KV engine (via standard REST APIs protected by client token headers). This eliminates hardcoded credentials in files and isolates cryptographic material.
+
 ---
 
 ## 5. Pillar 4: Economic Controls & Budget Rate-Limiting
@@ -143,6 +146,9 @@ Every reward request executes a check against historical allocations and deposit
 $$\text{Max Allowed Category Payout} = \frac{\text{Total Historical Pool Deposits} \times \text{Category Percentage}}{100}$$
 
 If a claim exceeds this maximum allowed threshold, the transaction reverts with `"Exceeds category budget allocation"`. This ensures that even in the case of a feature contract exploit, the maximum financial exposure is strictly bounded to that category's cap.
+
+### C. Treasury-Routed Crop Insurance Solvency
+To protect agricultural participants from contract-level liquidity defaults, [`FarmerProsperity.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/FarmerProsperity.sol) routes premiums and claims through the main `NationalRewardsTreasury`. Paid premiums are automatically forwarded to the global pool via `depositFunds()`, and weather claim payouts are drawn from the treasury's `Reserve` category cap. This routes parametric insurance risk into the broader, solvent treasury structure.
 
 ---
 
@@ -174,6 +180,8 @@ Bayanihan enforces separation of duties via an access control matrix. No single 
 | `MEDICAL_REVIEWER_ROLE` | Approves health insurance emergency payouts. | `HealthcareAssistance.sol` |
 | `DISTRIBUTOR_ROLE` | Authorized contracts allowed to request reward claims. | `NationalRewardsTreasury.sol` |
 
+* **Gnosis Safe Multi-Sig Admin Handoff:** In production Mainnet deployments, the `GOVERNOR_ROLE` and `DEFAULT_ADMIN_ROLE` privileges are transferred dynamically during setup via the automated `scripts/deploy.js` script to a Gnosis Safe Multi-Sig address, removing single-key control points of failure.
+
 ---
 
 ## 8. Incident Response & Disaster Recovery (DR)
@@ -183,3 +191,6 @@ In the event of an active contract exploit or extreme market volatility, any acc
 
 ### B. Emergency Token Salvage
 If tokens are mistakenly sent directly to the core infrastructure contracts (or if contracts need to be decommissioned), governors can execute `emergencyWithdraw(address token, uint256 amount)` to safely salvage the tokens and redirect them to a cold multisig wallet.
+
+### C. Automated Vulnerability Scanning (Slither)
+Smart contracts are subjected to automated static security checks via the **Slither** framework (by Trail of Bits) to audit access control matrices, detect reentrancy conditions, and check mathematical perimeters. Settings are defined in `slither.config.json` and executed via the run scripts (`run-slither.bat` / `run-slither.sh`).

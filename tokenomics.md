@@ -91,3 +91,11 @@ Thus, locking tokens in utility pools doubles the required token capitalization 
 ## 5. Regulatory Mitigation & Utility Points Yields
 * **SEC Security Classification Mitigation:** Standard token systems distribute yields directly as tokens (which resembles interest/dividends). To comply with SEC perimeters, [`NationalAssetTokenization.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/NationalAssetTokenization.sol) yields only **Utility Discount Points**. These points are burnt on-chain to claim discounts on services (e.g. warehouse space or solar grid usage) and cannot be traded on secondary markets.
 * **Zero Speculative Trading of Credentials:** All credentials (education levels, merchant tiers) are issued as non-transferable (soulbound) profiles to eliminate speculative credential trading.
+
+---
+
+## 6. Token Supply & Hard Cap Parameters
+To prevent administrative inflation and protect the ecosystem from infinite mint vulnerabilities:
+* **Max Supply Cap (`MAX_SUPPLY`):** Enforced at a strict limit of **100,000,000,000 BAYANI** (100 Billion tokens).
+* **Mint Restrictions:** The `mint(address,uint256)` function checks `require(totalSupply() + amount <= MAX_SUPPLY)`, preventing `MINTER_ROLE` addresses from exceeding the hard cap.
+* **Pre-Mint Allocation:** The entire 100 Billion supply is pre-minted during contract deployment to the deployer address to fund the initial rewards treasury, governance staking pools, and bootstrap ecosystem liquidity.

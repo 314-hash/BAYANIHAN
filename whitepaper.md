@@ -45,6 +45,7 @@ Standard elliptic curve cryptography (ECDSA/secp256k1) is vulnerable to quantum 
   ```
 * **Key Rotation Framework:** Citizens register two or more multi-sig guardians. If a citizen's active key is compromised or needs upgrading to a post-quantum standard, the guardians vote to map the profile to a new wallet address.
 * **Biometric Hashes:** Citizen metadata is hashed using SHA-256 off-chain, ensuring private data is never stored on-chain.
+* **Authority Key Protection:** Off-chain validator private signing keys are retrieved dynamically at runtime from an **OpenBao Secrets Manager** instance (or HSM) rather than being stored in plain-text, mitigating compromise of administrative signing authorities.
 
 ---
 
@@ -56,7 +57,7 @@ Standard elliptic curve cryptography (ECDSA/secp256k1) is vulnerable to quantum 
   * Organic production = **2x** base reward
   * Direct-to-Consumer (DTC) settlement = **3x** base reward
   * Certified Export = **5x** base reward
-* **Parametric Weather Insurance:** Farmers deposit premiums into an insurance pool. If a weather oracle (`CLIMATE_ORACLE_ROLE`) registers a typhoon or drought (using signed geolocation and telemetry logs), payouts are triggered automatically to the farmer's wallet, bypassing claims processing.
+* **Parametric Weather Insurance & Treasury Solvency Routing:** To resolve local contract solvency risks, all premiums collected are dynamically forwarded to the `NationalRewardsTreasury` reserve pool. In the event of extreme weather registered by a climate oracle (`CLIMATE_ORACLE_ROLE`), parametric claims are paid out directly from the Treasury's `Reserve` category allocation, assuring 100% solvency backup.
 
 ### B. MSME Credit Indexing & Dynamic Fee Tiers
 [`MSMEGrowth.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/MSMEGrowth.sol) tracks business activity metrics to formulate credit ratings:
@@ -95,4 +96,14 @@ All contracts are validated using a Hardhat test suite with 100% test coverage:
 ```bash
 npx hardhat test
 ```
-The test suite compiles all 45 Solidity contracts (including interfaces and mocks) and executes 17 test scenarios to verify access controls, reward math, and succession flows.
+The test suite compiles all Solidity contracts (including interfaces and mocks) and executes 21 test scenarios to verify access controls, reward math, succession flows, and parametric insurance payouts.
+
+### 🛡️ Automated Static Audits (Slither)
+To guarantee cryptographic integrity and code safety, the suite is automatically audited for vulnerabilities using Trail of Bits' **Slither** framework. Static checks are configured in `slither.config.json` to monitor reentrancy vectors, uninitialized state variables, and permission checks. Check runs can be executed using the automated scripts:
+```bash
+# Windows
+scripts\run-slither.bat
+
+# Linux/macOS
+./scripts/run-slither.sh
+```

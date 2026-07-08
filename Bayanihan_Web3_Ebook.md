@@ -149,7 +149,7 @@ A farmer works hard for three months, only for a typhoon to destroy the crop. Th
 **FarmerProsperity.sol** introduces three powerful Web3 concepts:
 1. **Crop NFTs (ERC-1155):** When a farmer logs a harvest, the contract mints a unique digital certificate. This token proves they own and produced a specific quantity of crops (organic, climate-friendly, water-conserving).
 2. **Forward Sales Escrow:** Farmers can list their future harvests for sale. A buyer escrows (locks) payment tokens inside the contract. Once delivered, the funds release to the farmer, and the NFT goes to the buyer. No middleman needed.
-3. **Weather-Indexed Insurance:** The farmer pays a small premium into an insurance pool. If a climate oracle registers a disaster (e.g., wind speeds exceeding a typhoon threshold), the contract automatically payouts up to 10x the premium directly to the farmer's wallet without requiring a claims adjuster.
+3. **Weather-Indexed Insurance & Treasury Solvency:** The farmer pays a small premium, which is automatically routed to the global rewards treasury reserve pool. If a climate oracle registers a disaster (e.g., wind speeds exceeding a typhoon threshold), the contract automatically pays out claims directly from the treasury's Reserve category to the farmer's wallet. This removes local contract balance limitations and ensures 100% solvency backup for the farmers.
 
 ### Practical Application: Crop Listing Framework
 | Step | Action | Actor | On-Chain State |

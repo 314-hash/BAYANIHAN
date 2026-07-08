@@ -1,0 +1,6 @@
+{
+  "detectors_to_exclude": "solc-version,naming-convention,low-level-calls",
+  "filter_paths": "node_modules|contracts/mock|contracts/interfaces",
+  "solc_args": "--optimize",
+  "json": "auditreport/slither-results.json"
+}

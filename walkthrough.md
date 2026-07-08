@@ -264,3 +264,71 @@ We built and integrated a Web3 KYC API Server to allow the frontend web portal t
 * **VC Issuance Flow**: Users can input their National ID Hash and click **1. Request Verifiable Credential**, which calls the API and prints the signed VC claim subject to a text area.
 * **Blockchain Bridging Flow**: Clicking **2. Verify & Bridge On-Chain** sends the VC back to the server, verifying it and bridging the profile state onto the blockchain. The UI automatically displays the tx hash and updates the citizen's Biometric State to **Verified Active (VC)** in green.
 
+---
+
+## 💼 Phase 3: Investor Readiness Suite
+
+To facilitate fundraising from institutional Web3, Fintech, and Impact VCs, we built and finalized the following strategic assets:
+
+1. **Structured Pitch Deck ([`pitch.md`](file:///c:/Users/janla/Bayanihan/pitch.md))**:
+   - Refactored the initial raw outline into a highly structured 12-slide narrative.
+   - Embeds TAM metrics ($30B TAM, $5.4B SAM, $350M SOM) and uses the Equation of Exchange ($MV = PQ$) to mathematically ground the `BAYANI` utility token value.
+2. **Fundraising Strategy Playbook ([`fundraising_strategy.md`](file:///c:/Users/janla/Bayanihan/fundraising_strategy.md))**:
+   - Outlines a 12-week high-momentum process for raising a $2.5M Seed Round (SAFT + Equity Warrant).
+   - Groups 25+ target VC funds into Web3-native, regional Southeast Asian generalists, and Impact/DFI organizations.
+   - Provides ready-to-use email templates for warm introduction requests, cold Web3 outreach, and impact finance introductions.
+3. **Hardcore VC Partner Q&A Prep ([`pitch_prep.md`](file:///c:/Users/janla/Bayanihan/pitch_prep.md))**:
+   - Compiled 40+ tough questions spanning business operations, technical cryptography, token economic modeling, and regulatory compliance perimeters.
+   - Answers are architected to establish high authority, regulatory security, and operational feasibility.
+
+---
+
+## 🌐 Phase 4: BNB Chain (BSC) Multi-Network Deployment & Integration
+
+We integrated full support for the **BNB Smart Chain (BSC) Testnet and Mainnet** networks, including full environment configurability, dynamic frontend resolution, and an official Hardhat deployment script:
+
+### 1. Hardhat Network Mappings ([`hardhat.config.js`](file:///c:/Users/janla/Bayanihan/hardhat.config.js))
+* Configured `dotenv` to load private keys securely from the `.env` configuration layer.
+* Integrated `bscTestnet` (Chain ID `97`, Binance Seed RPC) and `bscMainnet` (Chain ID `56`, Binance RPC) network configurations.
+
+### 2. Multi-Contract Deployer Script ([`scripts/deploy.js`](file:///c:/Users/janla/Bayanihan/scripts/deploy.js))
+* Deploys the mock tokens (`BayaniToken`, `BayaniNFT`), core identity/treasury systems, and all sectoral economic features.
+* Hooks up and registers the access controls: grants `MINTER_ROLE` to features on `BayaniNFT`, registers reward-eligible contracts in the `NationalRewardsTreasury`, and configures the validator and oracle roles to the deployer's address.
+* Funds the rewards treasury with 500,000 `BAYANI` tokens out-of-the-box.
+* Returns a clean JSON block of all deployed contract addresses for easy copying.
+
+### 3. Dynamic Frontend Resolution ([`frontend/app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js))
+* Created multi-network address dictionaries for Chain ID `31337` (Localhost), `97` (BSC Testnet), and `56` (BSC Mainnet).
+* Updated `connectWallet` to dynamically read the network's chain ID from the provider, swap active addresses accordingly, and display an updated network name (e.g., "BSC Testnet") directly on the frontend network badge.
+
+---
+
+## 🔒 Phase 5: Security Hardening & Mainnet Risk Mitigations
+
+We resolved the security concerns highlighted during the pre-deployment readiness analysis, ensuring the platform meets production safety standards for a Mainnet release:
+
+### 1. Centralization / Multi-Sig Integration
+* **Configurable Ownership Handoff:** Modified [`scripts/deploy.js`](file:///c:/Users/janla/Bayanihan/scripts/deploy.js) to read `MULTISIG_ADDRESS` from the environment configuration.
+* **Automated Privilege Transfer:** If configured, the deployer script automatically grants `DEFAULT_ADMIN_ROLE` and `GOVERNOR_ROLE` to the Multi-Sig address across all core contracts (`QuantumIdentity`, `NationalRewardsTreasury`, and `AIReputationOracle`) and revokes them from the deployer account, fully eliminating single-key administrative points of failure.
+
+### 2. Supply Inflation Cap ([`BayaniToken.sol`](file:///c:/Users/janla/Bayanihan/contracts/mock/BayaniToken.sol))
+* **Hard Cap Enforcement:** Implemented a strict maximum supply cap parameter `MAX_SUPPLY = 100_000_000_000 * 10**18` (100 Billion tokens).
+* **Minting Checks:** Enforced validation inside the `mint` method to prevent administrative keys from printing tokens indefinitely.
+
+### 3. Crop Insurance Solvency Routing ([`FarmerProsperity.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/FarmerProsperity.sol))
+* **Dynamic Treasury Routing:** Upgraded [`FarmerProsperity.sol`](file:///c:/Users/janla/Bayanihan/contracts/features/FarmerProsperity.sol) to forward insurance premiums to the main rewards treasury reserve pool (`depositFunds()`) and route payout claims directly from the treasury's `Reserve` category. This removes local contract balance constraints and protects user payouts from insolvency.
+* **Interface Expansion:** Added `depositFunds(uint256)` to [`INationalRewardsTreasury.sol`](file:///c:/Users/janla/Bayanihan/contracts/interfaces/INationalRewardsTreasury.sol) to support contract-to-contract token funding.
+
+### 4. Hardened Off-Chain Identity Infrastructure (OpenBao Secrets Manager)
+* **API Client Wrapper ([`veramo-kyc/openbao-service.js`](file:///c:/Users/janla/Bayanihan/veramo-kyc/openbao-service.js)):** Built a client library that communicates with OpenBao's HTTP REST API to retrieve secret payloads, authenticating via the `X-Vault-Token` header.
+* **Dynamic Key Handoff:** Modified [`veramo-kyc/service.js`](file:///c:/Users/janla/Bayanihan/veramo-kyc/service.js) to resolve the validator's private key asynchronously using OpenBao at runtime when configuration parameters are provided. If OpenBao configs are absent, it safely falls back to local environment variables to prevent local developer disruption.
+* **Variables Template:** Added OpenBao config parameters to [`.env.example`](file:///c:/Users/janla/Bayanihan/.env.example) and [`.env`](file:///c:/Users/janla/Bayanihan/.env).
+
+### 5. Automated Static Security Auditing (Slither Framework)
+* **Slither Configuration ([`slither.config.json`](file:///c:/Users/janla/Bayanihan/slither.config.json)):** Created a configuration file to exclude informational noise (naming, solc-version checks), exclude third-party dependencies (`node_modules`), and auto-save JSON findings to `auditreport/slither-results.json`.
+* **Execution Script for Windows ([`scripts/run-slither.bat`](file:///c:/Users/janla/Bayanihan/scripts/run-slither.bat)):** Designed a batch script to automatically pull the Slither Docker image and analyze the local contracts directory inside the container.
+* **Execution Script for Linux/macOS ([`scripts/run-slither.sh`](file:///c:/Users/janla/Bayanihan/scripts/run-slither.sh)):** Integrated equivalent bash-shell automation for static auditing across Unix platforms.
+
+### 6. Interactive Weather Insurance Frontend Panel
+* **UI Integration ([`frontend/index.html`](file:///c:/Users/janla/Bayanihan/frontend/index.html)):** Added a dedicated "Weather Insurance & Solvency Pool" card widget under the "Supply Chains" dashboard tab. This allows farmers to input their crop NFT ID and premium amount to protect their yields, and includes a "Climate Oracle Simulation" panel to trigger parametric weather claim payouts.
+* **Web3 Event Handlers ([`frontend/app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js)):** Configured Ethers.js event handlers to execute ERC-20 approvals, invoke `payInsurancePremium`, and allow climate oracles (or simulated nodes) to trigger claims via `triggerInsuranceClaim`. Extends full compatibility with local mock/fallback states.

@@ -155,7 +155,7 @@ contract MSMEGrowth is AccessControl, ReentrancyGuard, Pausable {
             if (rewardAmount > BASE_MSME_REWARD * 5) {
                 rewardAmount = BASE_MSME_REWARD * 5;
             }
-            rewardsTreasury.claimRewards(merchant, rewardAmount, INationalRewardsTreasury.AllocationCategory.MSMEs);
+            rewardsTreasury.claimRewards(merchant, rewardAmount, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         }
 
         // Cycle the revenues

@@ -4,6 +4,7 @@ import path from 'path';
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+import { fetchSecretFromBao } from './openbao-service.js';
 
 dotenv.config();
 
@@ -12,8 +13,25 @@ const __dirname = path.dirname(__filename);
 
 const DATA_FILE = path.resolve(__dirname, 'database.json');
 const PROVIDER_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
-const VALIDATOR_PRIVATE_KEY = process.env.VALIDATOR_PRIVATE_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"; // Default Account 0 in Hardhat node
 const QUANTUM_IDENTITY_ADDRESS = process.env.QUANTUM_IDENTITY_ADDRESS || "0x51a1ceb83b83f1985a81c295d1ff28afef186e02";
+
+// Async helper to dynamically load key from OpenBao, falling back to process.env or hardhat default key
+async function getValidatorPrivateKey() {
+  if (process.env.OPENBAO_URL && process.env.OPENBAO_TOKEN && process.env.OPENBAO_SECRET_PATH) {
+    try {
+      console.log("🔒 Resolving Validator Private Key from OpenBao...");
+      const secrets = await fetchSecretFromBao();
+      const keyProperty = process.env.OPENBAO_SECRET_KEY || "validator_private_key";
+      if (secrets && secrets[keyProperty]) {
+        console.log("✅ Key resolved from OpenBao successfully.");
+        return secrets[keyProperty];
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to retrieve key from OpenBao, falling back to local credentials:", err.message);
+    }
+  }
+  return process.env.VALIDATOR_PRIVATE_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+}
 
 // Load QuantumIdentity ABI
 const abiPath = path.resolve(__dirname, '../artifacts/contracts/core/QuantumIdentity.sol/QuantumIdentity.json');
@@ -134,7 +152,8 @@ export async function bridgeToBlockchain(citizenAddress, identityType) {
 
   try {
     const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
-    const wallet = new ethers.Wallet(VALIDATOR_PRIVATE_KEY, provider);
+    const key = await getValidatorPrivateKey();
+    const wallet = new ethers.Wallet(key, provider);
     const contract = new ethers.Contract(QUANTUM_IDENTITY_ADDRESS, quantumIdentityAbi, wallet);
 
     console.log(`Submitting on-chain verification tx for citizen ${citizenAddress}...`);

@@ -122,7 +122,7 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         }
 
         // Trigger treasury claim
-        rewardsTreasury.claimRewards(msg.sender, rewardAmount, INationalRewardsTreasury.AllocationCategory.Farmers);
+        rewardsTreasury.claimRewards(msg.sender, rewardAmount, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
         emit HarvestRegistered(nftId, msg.sender, cropType, rewardAmount);
         return nftId;
@@ -196,7 +196,7 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         }
 
         if (bonusReward > 0) {
-            rewardsTreasury.claimRewards(listing.seller, bonusReward, INationalRewardsTreasury.AllocationCategory.Farmers);
+            rewardsTreasury.claimRewards(listing.seller, bonusReward, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         }
 
         // Reputation score boost
@@ -246,8 +246,13 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         require(cropNft.balanceOf(msg.sender, cropNftId) == 1, "Must own crop NFT");
         require(!insuranceClaimed[cropNftId], "Already claimed");
 
+        // Transfer premium from farmer to this contract
         bayaniToken.safeTransferFrom(msg.sender, address(this), premiumAmount);
         insurancePremiums[cropNftId] += premiumAmount;
+
+        // Forward premium to treasury to back the reserve pool
+        bayaniToken.approve(address(rewardsTreasury), premiumAmount);
+        rewardsTreasury.depositFunds(premiumAmount);
 
         emit InsurancePaid(cropNftId, msg.sender, premiumAmount);
     }
@@ -267,7 +272,9 @@ contract FarmerProsperity is AccessControl, ReentrancyGuard, Pausable {
         uint256 maxPayout = insurancePremiums[cropNftId] * 10;
         uint256 finalPayout = payoutAmount > maxPayout ? maxPayout : payoutAmount;
 
-        bayaniToken.safeTransfer(farmer, finalPayout);
+        // Route payout through treasury reserve allocation
+        rewardsTreasury.claimRewards(farmer, finalPayout, INationalRewardsTreasury.AllocationCategory.Reserve);
+
         emit InsuranceClaimTriggered(cropNftId, farmer, finalPayout);
     }
 

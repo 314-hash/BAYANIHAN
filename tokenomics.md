@@ -33,14 +33,15 @@ Ecosystem reward emissions are distributed by the [`NationalRewardsTreasury.sol`
 
 | Category | Allocation | Primary Target Subsystem |
 | :--- | :---: | :--- |
-| **Farmers & Fisherfolk** | **25%** | Crop registries, catch logs, weather-indexed insurance. |
-| **OFWs** | **20%** | Diaspora impact milestones (micro-lending). |
-| **MSMEs** | **15%** | Monthly epoch growth, credit scores. |
-| **Developers & Freelancers** | **10%** | Escrow project completions, 5-star ratings. |
-| **Cooperatives** | **10%** | Renewable energy tracking, cooperative mortgages. |
-| **Validators** | **10%** | Barangay proposal voting, project auditing. |
-| **Education** | **5%** | Course completions, mentorships. |
-| **Emergency Fund** | **5%** | Medical emergency claims. |
+| **Community Treasury** | **35%** | Cooperative mortgages, health pools, safety nets |
+| **Ecosystem Rewards** | **25%** | Farmers, fisherfolk, MSMEs, freelancers |
+| **Core Team** | **10%** | Core development and operations contributors |
+| **Founder** | **5%** | Platform founders and early builders |
+| **Validators** | **10%** | Barangay proposal voting, project auditing |
+| **Liquidity** | **5%** | Exchange liquidity and stability pools |
+| **Marketing** | **5%** | Community outreach and merchant onboarding |
+| **Reserve** | **3%** | Emergency reserve and long-term treasury |
+| **Advisors** | **2%** | Strategic advisors and industry partners |
 
 ---
 

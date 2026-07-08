@@ -37,14 +37,15 @@ contract NationalRewardsTreasury is INationalRewardsTreasury, AccessControl, Pau
         _grantRole(GOVERNOR_ROLE, msg.sender);
 
         // Set allocation percentages
-        categoryPercentages[uint256(AllocationCategory.Farmers)] = 25;
-        categoryPercentages[uint256(AllocationCategory.OFWs)] = 20;
-        categoryPercentages[uint256(AllocationCategory.MSMEs)] = 15;
-        categoryPercentages[uint256(AllocationCategory.Developers)] = 10;
-        categoryPercentages[uint256(AllocationCategory.Cooperatives)] = 10;
+        categoryPercentages[uint256(AllocationCategory.CommunityTreasury)] = 35;
+        categoryPercentages[uint256(AllocationCategory.EcosystemRewards)] = 25;
+        categoryPercentages[uint256(AllocationCategory.CoreTeam)] = 10;
+        categoryPercentages[uint256(AllocationCategory.Founder)] = 5;
         categoryPercentages[uint256(AllocationCategory.Validators)] = 10;
-        categoryPercentages[uint256(AllocationCategory.Education)] = 5;
-        categoryPercentages[uint256(AllocationCategory.EmergencyFund)] = 5;
+        categoryPercentages[uint256(AllocationCategory.Liquidity)] = 5;
+        categoryPercentages[uint256(AllocationCategory.Marketing)] = 5;
+        categoryPercentages[uint256(AllocationCategory.Reserve)] = 3;
+        categoryPercentages[uint256(AllocationCategory.Advisors)] = 2;
     }
 
     // Accept fund transfers and record them

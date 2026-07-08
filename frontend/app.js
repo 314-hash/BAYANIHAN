@@ -13,16 +13,41 @@ svgDefs.innerHTML = `
 `;
 document.body.appendChild(svgDefs);
 
-// Contract Deployment Addresses on local Hardhat node
+// Contract Deployment Addresses mapped by Chain ID
 const CONTRACT_ADDRESSES = {
-  BayaniToken: "0xd8a5a9b31c3c0232e196d518e89fd8bf83acad43",
-  BayaniNFT: "0xdc11f7e700a4c898ae5caddb1082cffa76512add",
-  QuantumIdentity: "0x51a1ceb83b83f1985a81c295d1ff28afef186e02",
-  AIReputationOracle: "0x36b58f5c1969b7b6591d752ea6f5486d069010ab",
-  NationalRewardsTreasury: "0x8198f5d8f8cffe8f9c413d98a0a55aeb8ab9fbb7",
-  FarmerProsperity: "0x0355b7b8cb128fa5692729ab3aaa199c1753f726",
-  FreelancerEscrow: "0x202cce504e04bed6fc0521238ddf04bc9e8e15ab"
+  // Hardhat Local Node (31337 / 1337)
+  31337: {
+    BayaniToken: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    BayaniNFT: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    QuantumIdentity: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    AIReputationOracle: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    NationalRewardsTreasury: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    FarmerProsperity: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    FreelancerEscrow: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
+  },
+  // Binance Smart Chain Testnet (97) - Update these with output addresses from deploy script!
+  97: {
+    BayaniToken: "0xE1b1aA2fd68925d94FD1C14EA23532b94ea3F538",
+    BayaniNFT: "0x472EA138Cb1F5E414082b39C0158bFec0c1c0831",
+    QuantumIdentity: "0x1746256036e3698c3F4AdbB077a7eFC30D083Fec",
+    AIReputationOracle: "0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e",
+    NationalRewardsTreasury: "0xe094214c40A4F2b220bdBca944d661F53094022A",
+    FarmerProsperity: "0x919404d0999Ab19Eb71a2e552807acEDD8511Bc7",
+    FreelancerEscrow: "0xfe1414Dc827F1031B7ea23E37a760DDE16aA7c06"
+  },
+  // Binance Smart Chain Mainnet (56) - Fill in after mainnet deployment
+  56: {
+    BayaniToken: "",
+    BayaniNFT: "",
+    QuantumIdentity: "",
+    AIReputationOracle: "",
+    NationalRewardsTreasury: "",
+    FarmerProsperity: "",
+    FreelancerEscrow: ""
+  }
 };
+// Active contract configuration pointer (default to Localhost)
+let activeAddresses = CONTRACT_ADDRESSES[31337];
 
 // Minimal ABIs required for operation
 const CONTRACT_ABIS = {
@@ -50,7 +75,9 @@ const CONTRACT_ABIS = {
     "function confirmFutureHarvestDelivery(uint256 listingId, bool directToConsumer, bool exportSale) external",
     "function cancelFutureHarvestListing(uint256 listingId) external",
     "function refundFutureHarvest(uint256 listingId) external",
-    "function getHarvestNFTCount() view returns (uint256)"
+    "function getHarvestNFTCount() view returns (uint256)",
+    "function payInsurancePremium(uint256 cropNftId, uint256 premiumAmount) external",
+    "function triggerInsuranceClaim(uint256 cropNftId, address farmer, uint256 payoutAmount) external"
   ],
   FreelancerEscrow: [
     "function createProject(address freelancer, uint256[] budgets, uint256[] deadlines) external",
@@ -579,25 +606,39 @@ async function connectWallet() {
     
     // Verify Network
     const network = await provider.getNetwork();
+    const chainId = Number(network.chainId);
     
-    // Local Hardhat chain ID is usually 31337 or 1337
-    if (network.chainId !== 31337n && network.chainId !== 1337n) {
-      showToast("Incorrect Network", "Connected, but please switch MetaMask to local Hardhat node (Chain 31337) for on-chain functions.", "warning");
+    let netName = "Unknown Network";
+    if (chainId === 31337 || chainId === 1337) {
+      activeAddresses = CONTRACT_ADDRESSES[31337];
+      netName = "Hardhat Local Node";
+      showToast("Connected to Localhost", "Using local node smart contract configurations.", "success");
+    } else if (chainId === 97) {
+      activeAddresses = CONTRACT_ADDRESSES[97];
+      netName = "BSC Testnet";
+      showToast("Connected to BSC Testnet", "Using BSC Testnet smart contract configurations.", "success");
+    } else if (chainId === 56) {
+      activeAddresses = CONTRACT_ADDRESSES[56];
+      netName = "BSC Mainnet";
+      showToast("Connected to BSC Mainnet", "Using BSC Mainnet smart contract configurations.", "success");
+    } else {
+      activeAddresses = CONTRACT_ADDRESSES[31337]; // Fallback
+      showToast("Unknown Network", `Connected to Chain ID ${chainId}. Defaulting to localhost settings.`, "warning");
     }
     
     state.web3Connected = true;
     elements.connectWalletBtn.innerText = state.userAddress.substring(0, 6) + "..." + state.userAddress.substring(38);
-    elements.netStatus.innerText = "Web3 Connected";
+    elements.netStatus.innerText = netName;
     elements.netStatus.classList.add("web3-connected");
     
-    showToast("Wallet Connected", `Successfully linked: ${state.userAddress}`, "success");
+    showToast("Wallet Connected", `Successfully linked to ${netName}`, "success");
     
-    // Instantiate Contracts
-    contracts.BayaniToken = new ethers.Contract(CONTRACT_ADDRESSES.BayaniToken, CONTRACT_ABIS.BayaniToken, signer);
-    contracts.QuantumIdentity = new ethers.Contract(CONTRACT_ADDRESSES.QuantumIdentity, CONTRACT_ABIS.QuantumIdentity, signer);
-    contracts.AIReputationOracle = new ethers.Contract(CONTRACT_ADDRESSES.AIReputationOracle, CONTRACT_ABIS.AIReputationOracle, signer);
-    contracts.FarmerProsperity = new ethers.Contract(CONTRACT_ADDRESSES.FarmerProsperity, CONTRACT_ABIS.FarmerProsperity, signer);
-    contracts.FreelancerEscrow = new ethers.Contract(CONTRACT_ADDRESSES.FreelancerEscrow, CONTRACT_ABIS.FreelancerEscrow, signer);
+    // Instantiate Contracts using active network addresses
+    contracts.BayaniToken = new ethers.Contract(activeAddresses.BayaniToken, CONTRACT_ABIS.BayaniToken, signer);
+    contracts.QuantumIdentity = new ethers.Contract(activeAddresses.QuantumIdentity, CONTRACT_ABIS.QuantumIdentity, signer);
+    contracts.AIReputationOracle = new ethers.Contract(activeAddresses.AIReputationOracle, CONTRACT_ABIS.AIReputationOracle, signer);
+    contracts.FarmerProsperity = new ethers.Contract(activeAddresses.FarmerProsperity, CONTRACT_ABIS.FarmerProsperity, signer);
+    contracts.FreelancerEscrow = new ethers.Contract(activeAddresses.FreelancerEscrow, CONTRACT_ABIS.FreelancerEscrow, signer);
     
     await readOnChainState();
     
@@ -807,6 +848,78 @@ function setupSimulationEvents() {
     showToast("Tokens Unstaked", `Withdrew ${amount} BAYANI from Barangay DAO. Voting weight returned to base citizenship level.`, "success");
     document.getElementById("stakeAmount").value = "";
   });
+
+  // Crop Insurance Form Submit
+  const insuranceForm = document.getElementById("insuranceForm");
+  if (insuranceForm) {
+    insuranceForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nftId = parseInt(document.getElementById("insCropNftId").value);
+      const premium = parseFloat(document.getElementById("insPremiumAmount").value);
+      
+      if (state.web3Connected) {
+        try {
+          showToast("Transaction Initiating", "Approving premium and paying insurance...", "info");
+          const premiumWei = ethers.parseEther(premium.toString());
+          
+          // Approve FarmerProsperity contract to spend premium
+          const appTx = await contracts.BayaniToken.approve(activeAddresses.FarmerProsperity, premiumWei);
+          await appTx.wait();
+          
+          // Pay insurance premium
+          const payTx = await contracts.FarmerProsperity.payInsurancePremium(nftId, premiumWei);
+          await payTx.wait();
+          
+          showToast("Premium Paid!", `Successfully insured Crop NFT ID ${nftId}. Premium forwarded to NationalRewardsTreasury.`, "success");
+          await readOnChainState();
+        } catch (error) {
+          showToast("On-Chain Error", error.message || "Failed to submit transaction", "error");
+        }
+      } else {
+        if (state.simBalance < premium) {
+          showToast("Insufficient Balance", "Cannot pay premium. Insufficient simulated BAYANI.", "error");
+          return;
+        }
+        state.simBalance -= premium;
+        showToast("Premium Simulated", `Insured Crop NFT ID ${nftId} with ${premium} BAYANI. Funds forwarded to the Treasury backing pool.`, "success");
+      }
+      
+      document.getElementById("insCropNftId").value = "";
+      document.getElementById("insPremiumAmount").value = "";
+    });
+  }
+
+  // Trigger Insurance Weather Claim
+  const triggerClaimBtn = document.getElementById("triggerClaimBtn");
+  if (triggerClaimBtn) {
+    triggerClaimBtn.addEventListener("click", async () => {
+      const nftId = parseInt(document.getElementById("insClaimNftId").value);
+      if (!nftId) {
+        showToast("Simulation Error", "Please specify a Target Crop NFT ID.", "error");
+        return;
+      }
+      
+      if (state.web3Connected) {
+        try {
+          showToast("Transaction Initiating", "Climate Oracle calling triggerInsuranceClaim...", "info");
+          // Payout is automatically requested by climate oracle (deployer) for 100 BAYANI
+          const payoutWei = ethers.parseEther("100");
+          const claimTx = await contracts.FarmerProsperity.triggerInsuranceClaim(nftId, state.userAddress, payoutWei);
+          await claimTx.wait();
+          
+          showToast("Claim Triggered!", `Solvency payout of 100 BAYANI successfully routed from Treasury.`, "success");
+          await readOnChainState();
+        } catch (error) {
+          showToast("On-Chain Error", error.message || "Failed to submit transaction. Verify that a premium was paid first.", "error");
+        }
+      } else {
+        state.simBalance += 100;
+        showToast("Claim Payout Simulated", `Typhoon event recorded. Distributed payout of 100 BAYANI from Treasury Reserve pool to your wallet.`, "success");
+      }
+      
+      document.getElementById("insClaimNftId").value = "";
+    });
+  }
 }
 
 // -------------------------------------------------------------

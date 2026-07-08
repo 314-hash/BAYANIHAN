@@ -186,7 +186,7 @@ contract HousingCooperative is AccessControl, ReentrancyGuard, Pausable {
         // Good Standing reward: 12 consecutive payments = payout reward from Treasury (Cooperatives)
         if (mort.consecutivePayments >= 12) {
             mort.consecutivePayments = 0; // reset streak
-            rewardsTreasury.claimRewards(msg.sender, HOUSING_STREAK_REWARD, INationalRewardsTreasury.AllocationCategory.Cooperatives);
+            rewardsTreasury.claimRewards(msg.sender, HOUSING_STREAK_REWARD, INationalRewardsTreasury.AllocationCategory.CommunityTreasury);
             emit MortgageRewardGranted(msg.sender, HOUSING_STREAK_REWARD);
         }
     }

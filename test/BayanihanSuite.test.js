@@ -251,7 +251,7 @@ describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function (
 
   describe("NationalRewardsTreasury Safety caps", function () {
     it("Should enforce category percentage limits on payouts", async function () {
-      const farmerCategory = 0; // Farmers (25% cap)
+      const ecosystemCategory = 1; // EcosystemRewards (25% cap)
       // Total treasury historically received: 100k
       // Max allowed: 25k BAYANI
       
@@ -263,12 +263,12 @@ describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function (
       const DISTRIBUTOR_ROLE = await nationalRewardsTreasury.DISTRIBUTOR_ROLE();
       await nationalRewardsTreasury.grantRole(DISTRIBUTOR_ROLE, deployer.address);
 
-      await expect(nationalRewardsTreasury.claimRewards(farmer.address, testClaim, farmerCategory))
+      await expect(nationalRewardsTreasury.claimRewards(farmer.address, testClaim, ecosystemCategory))
         .to.emit(nationalRewardsTreasury, "RewardDistributed");
 
       // Try to exceed 25k (say claiming 26k)
       const excessiveClaim = ethers.parseEther("26000");
-      await expect(nationalRewardsTreasury.claimRewards(farmer.address, excessiveClaim, farmerCategory))
+      await expect(nationalRewardsTreasury.claimRewards(farmer.address, excessiveClaim, ecosystemCategory))
         .to.be.revertedWith("Exceeds category budget allocation");
     });
   });
@@ -379,6 +379,34 @@ describe("Bayanihan Quantum Commerce Chain - Phase 2 Advanced Suite", function (
 
       // Verify the NFT is returned to the farmer
       expect(await bayaniNFT.balanceOf(farmer.address, nftId)).to.equal(1);
+    });
+
+    it("Should allow paying premium and claiming weather insurance routed through the treasury", async function () {
+      // Register harvest to get NFT ID 4
+      await farmerProsperity.connect(farmer).registerHarvest("Corn", 200, false, false, false);
+      const nftId = 4;
+      const premium = ethers.parseEther("10");
+      const payout = ethers.parseEther("100");
+
+      // Approve premium payment
+      await bayaniToken.connect(farmer).approve(await farmerProsperity.getAddress(), premium);
+
+      // Pay premium (Premium should be forwarded to the Treasury)
+      const treasuryBalBefore = await bayaniToken.balanceOf(await nationalRewardsTreasury.getAddress());
+      await expect(farmerProsperity.connect(farmer).payInsurancePremium(nftId, premium))
+        .to.emit(farmerProsperity, "InsurancePaid");
+      
+      const treasuryBalAfter = await bayaniToken.balanceOf(await nationalRewardsTreasury.getAddress());
+      expect(treasuryBalAfter - treasuryBalBefore).to.equal(premium);
+
+      // Trigger claim by climate oracle (deployer is climate oracle)
+      // Claim should payout from treasury Reserve category (max payout cap: 10 * 10 = 100 BAYANI)
+      const farmerBalBefore = await bayaniToken.balanceOf(farmer.address);
+      await expect(farmerProsperity.connect(deployer).triggerInsuranceClaim(nftId, farmer.address, payout))
+        .to.emit(farmerProsperity, "InsuranceClaimTriggered");
+
+      const farmerBalAfter = await bayaniToken.balanceOf(farmer.address);
+      expect(farmerBalAfter - farmerBalBefore).to.equal(payout);
     });
   });
 

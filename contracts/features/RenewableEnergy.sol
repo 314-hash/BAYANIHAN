@@ -82,7 +82,7 @@ contract RenewableEnergy is AccessControl, ReentrancyGuard, Pausable {
 
         // Trigger reward claim (Cooperatives category because energy tracking models micro-cooperatives)
         uint256 rewardAmount = kwhGenerated * REWARD_PER_KWH;
-        rewardsTreasury.claimRewards(producer, rewardAmount, INationalRewardsTreasury.AllocationCategory.Cooperatives);
+        rewardsTreasury.claimRewards(producer, rewardAmount, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
         emit EnergyLogged(producer, deviceId, kwhGenerated, rewardAmount);
     }

@@ -87,7 +87,7 @@ contract EducationRewards is ERC721, AccessControl, ReentrancyGuard, Pausable {
         _mint(student, tokenIdCounter);
 
         // Claim completion reward
-        rewardsTreasury.claimRewards(student, COURSE_COMPLETION_REWARD, INationalRewardsTreasury.AllocationCategory.Education);
+        rewardsTreasury.claimRewards(student, COURSE_COMPLETION_REWARD, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
         emit CourseCompleted(student, courseId, COURSE_COMPLETION_REWARD);
 
@@ -101,7 +101,7 @@ contract EducationRewards is ERC721, AccessControl, ReentrancyGuard, Pausable {
     ) external onlyRole(EDUCATOR_ROLE) onlyVerifiedCitizen(student) whenNotPaused nonReentrant {
         passedAssessmentsCount[student]++;
         
-        rewardsTreasury.claimRewards(student, ASSESSMENT_PASS_REWARD, INationalRewardsTreasury.AllocationCategory.Education);
+        rewardsTreasury.claimRewards(student, ASSESSMENT_PASS_REWARD, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         emit AssessmentPassed(student, assessmentId, ASSESSMENT_PASS_REWARD);
     }
 
@@ -109,7 +109,7 @@ contract EducationRewards is ERC721, AccessControl, ReentrancyGuard, Pausable {
         address teacher,
         string calldata courseId
     ) external onlyRole(EDUCATOR_ROLE) onlyVerifiedCitizen(teacher) whenNotPaused nonReentrant {
-        rewardsTreasury.claimRewards(teacher, TEACHING_REWARD, INationalRewardsTreasury.AllocationCategory.Education);
+        rewardsTreasury.claimRewards(teacher, TEACHING_REWARD, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         emit ClassTaught(teacher, courseId, TEACHING_REWARD);
     }
 
@@ -117,7 +117,7 @@ contract EducationRewards is ERC721, AccessControl, ReentrancyGuard, Pausable {
         address mentor,
         address mentee
     ) external onlyRole(EDUCATOR_ROLE) onlyVerifiedCitizen(mentor) onlyVerifiedCitizen(mentee) whenNotPaused nonReentrant {
-        rewardsTreasury.claimRewards(mentor, MENTOR_REWARD, INationalRewardsTreasury.AllocationCategory.Education);
+        rewardsTreasury.claimRewards(mentor, MENTOR_REWARD, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         emit MentorshipLogged(mentor, mentee, MENTOR_REWARD);
     }
 

@@ -244,7 +244,7 @@ contract DiasporaNetwork is AccessControl, ReentrancyGuard, Pausable {
             profile.lastRewardThreshold = milestones;
 
             uint256 rewardAmount = BASE_DIASPORA_REWARD * claimCount;
-            rewardsTreasury.claimRewards(ofw, rewardAmount, INationalRewardsTreasury.AllocationCategory.OFWs);
+            rewardsTreasury.claimRewards(ofw, rewardAmount, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
             emit ImpactRewardClaimed(ofw, rewardAmount, currentScore);
         }

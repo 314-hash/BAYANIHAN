@@ -35,6 +35,7 @@
       
       <div class="wallet-actions">
         <button id="toggleGuideBtn" class="guide-toggle-btn">📖 Learn & Guide</button>
+        <a href="/simulation" class="sim-portal-btn" title="Step-by-step guided blockchain simulation for all users">⚡ Simulation Portal</a>
         <div id="netStatus" class="network-badge">Local Simulator</div>
         <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
       </div>
@@ -254,6 +255,36 @@
             
             <div class="marketplace-listings" id="listingsContainer">
               <!-- Listings will render here dynamically -->
+            </div>
+          </div>
+
+          <!-- Crop Insurance & Weather Claims -->
+          <div class="card">
+            <h3 class="card-title">🛡️ Weather Insurance & Solvency Pool <span class="help-tooltip-trigger" data-tooltip="Parametric crop insurance. Premiums back the pool, and weather events trigger payouts.">ℹ️</span></h3>
+            <p class="section-desc">Protect your yields from extreme weather. Premiums are routed through the rewards treasury reserve pool to ensure automatic payout solvency.</p>
+            
+            <form id="insuranceForm" class="input-form">
+              <div class="form-group">
+                <label for="insCropNftId">Crop NFT ID:</label>
+                <input type="number" id="insCropNftId" placeholder="e.g. 1" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label for="insPremiumAmount">Premium Amount (BAYANI):</label>
+                <input type="number" id="insPremiumAmount" placeholder="e.g. 10" class="form-input" required>
+              </div>
+              <button type="submit" class="primary-btn">Pay Insurance Premium</button>
+            </form>
+
+            <hr class="separator" style="margin: 1.2rem 0; border: 0; border-top: 1px solid rgba(255,255,255,0.08);">
+
+            <div class="oracle-simulation-box">
+              <h4 style="font-family:var(--font-header); font-size:0.85rem; color:#ef4444; margin-bottom:0.4rem;">🚨 Climate Oracle Simulation (Trigger Claim)</h4>
+              <p class="section-desc">Simulate a typhoon or extreme climate event to trigger insurance claims. Payouts are drawn automatically from the Treasury Reserve category.</p>
+              <div class="form-group" style="margin-bottom:0.8rem;">
+                <label for="insClaimNftId">Target Crop NFT ID:</label>
+                <input type="number" id="insClaimNftId" placeholder="e.g. 1" class="form-input">
+              </div>
+              <button id="triggerClaimBtn" type="button" class="secondary-btn" style="border-color:#ef4444; color:#ef4444; width:100%;">Trigger Solvency Payout</button>
             </div>
           </div>
         </div>

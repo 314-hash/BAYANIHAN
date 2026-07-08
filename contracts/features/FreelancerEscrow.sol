@@ -271,7 +271,7 @@ contract FreelancerEscrow is AccessControl, ReentrancyGuard, Pausable {
         if (rating == 5 && onTime) {
             bonusAmount = FREELANCER_BONUS_REWARD;
             // Claim freelancer bonus rewards from Treasury
-            rewardsTreasury.claimRewards(proj.freelancer, bonusAmount, INationalRewardsTreasury.AllocationCategory.Developers);
+            rewardsTreasury.claimRewards(proj.freelancer, bonusAmount, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
         }
 
         // Adjust Reputation upwards

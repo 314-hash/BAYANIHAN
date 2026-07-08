@@ -117,7 +117,7 @@ contract FisherfolkRewards is AccessControl, ReentrancyGuard, Pausable {
         }
 
         // Trigger rewards distribution from treasury
-        rewardsTreasury.claimRewards(record.fisher, rewards, INationalRewardsTreasury.AllocationCategory.Farmers);
+        rewardsTreasury.claimRewards(record.fisher, rewards, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
         // Update Impact Score
         address fisher = record.fisher;
@@ -142,7 +142,7 @@ contract FisherfolkRewards is AccessControl, ReentrancyGuard, Pausable {
         
         // Base conservation participation bonus
         uint256 reward = BASE_CATCH_REWARD * 3; // Conservation Participation = Bonus (3x base)
-        rewardsTreasury.claimRewards(fisher, reward, INationalRewardsTreasury.AllocationCategory.Farmers);
+        rewardsTreasury.claimRewards(fisher, reward, INationalRewardsTreasury.AllocationCategory.EcosystemRewards);
 
         // Update community participation score
         ImpactScore storage score = fisherImpactScores[fisher];

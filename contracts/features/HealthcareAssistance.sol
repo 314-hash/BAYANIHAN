@@ -119,7 +119,7 @@ contract HealthcareAssistance is AccessControl, ReentrancyGuard, Pausable {
             healthcareNft.mint(msg.sender, 1, 1, ""); // Token ID 1 represents Health Champion Badge
 
             // Allocate reward from Treasury's EmergencyFund category
-            rewardsTreasury.claimRewards(msg.sender, GOOD_HEALTH_REWARD, INationalRewardsTreasury.AllocationCategory.EmergencyFund);
+            rewardsTreasury.claimRewards(msg.sender, GOOD_HEALTH_REWARD, INationalRewardsTreasury.AllocationCategory.CommunityTreasury);
 
             emit HealthyStatusAwarded(msg.sender, GOOD_HEALTH_REWARD);
         }

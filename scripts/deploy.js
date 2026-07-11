@@ -20,19 +20,53 @@ async function main() {
   console.log(`Deployer Balance: ${ethers.formatEther(balance)} BNB`);
   console.log("====================================================");
 
-  // 1. Deploy Mocks
-  console.log("\n1. Deploying Mocks...");
-  const BayaniToken = await ethers.getContractFactory("BayaniToken");
-  const bayaniToken = await BayaniToken.deploy();
-  await bayaniToken.waitForDeployment();
-  const bayaniTokenAddr = await bayaniToken.getAddress();
-  console.log(`✅ BayaniToken deployed to: ${bayaniTokenAddr}`);
+  // 1. Deploy Mocks or Resolve Production Contracts
+  console.log("\n1. Resolving Token and NFT Contracts...");
+  let bayaniToken;
+  let bayaniTokenAddr = process.env.BAYANI_TOKEN_ADDRESS || "";
+  if (bayaniTokenAddr && ethers.isAddress(bayaniTokenAddr)) {
+    console.log(`ℹ️ Using pre-existing BayaniToken at: ${bayaniTokenAddr}`);
+    bayaniToken = await ethers.getContractAt("BayaniToken", bayaniTokenAddr);
+  } else {
+    console.log("🛠️ Deploying mock BayaniToken...");
+    const BayaniToken = await ethers.getContractFactory("BayaniToken");
+    bayaniToken = await BayaniToken.deploy();
+    await bayaniToken.waitForDeployment();
+    bayaniTokenAddr = await bayaniToken.getAddress();
+    console.log(`✅ BayaniToken deployed to: ${bayaniTokenAddr}`);
+  }
 
-  const BayaniNFT = await ethers.getContractFactory("BayaniNFT");
-  const bayaniNFT = await BayaniNFT.deploy();
-  await bayaniNFT.waitForDeployment();
-  const bayaniNFTAddr = await bayaniNFT.getAddress();
-  console.log(`✅ BayaniNFT deployed to: ${bayaniNFTAddr}`);
+  let bayaniNFT;
+  let bayaniNFTAddr = process.env.BAYANI_NFT_ADDRESS || "";
+  if (bayaniNFTAddr && ethers.isAddress(bayaniNFTAddr)) {
+    console.log(`ℹ️ Using pre-existing BayaniNFT at: ${bayaniNFTAddr}`);
+    bayaniNFT = await ethers.getContractAt("BayaniNFT", bayaniNFTAddr);
+  } else {
+    console.log("🛠️ Deploying mock BayaniNFT...");
+    const BayaniNFT = await ethers.getContractFactory("BayaniNFT");
+    bayaniNFT = await BayaniNFT.deploy();
+    await bayaniNFT.waitForDeployment();
+    bayaniNFTAddr = await bayaniNFT.getAddress();
+    console.log(`✅ BayaniNFT deployed to: ${bayaniNFTAddr}`);
+  }
+
+  // Configure BayaniNFT URI if set in environment
+  let cropNftGatewayUrl = process.env.CROP_NFT_GATEWAY_URL || "";
+  if (cropNftGatewayUrl) {
+    try {
+      // Append standard ERC1155 token identifier placeholder if not already present
+      if (!cropNftGatewayUrl.includes("{id}")) {
+        cropNftGatewayUrl = cropNftGatewayUrl.endsWith("/") 
+          ? `${cropNftGatewayUrl}{id}.json` 
+          : `${cropNftGatewayUrl}/{id}.json`;
+      }
+      console.log(`ℹ️ Setting BayaniNFT URI to: ${cropNftGatewayUrl}`);
+      await (await bayaniNFT.setURI(cropNftGatewayUrl)).wait();
+      console.log("✅ BayaniNFT URI configured successfully!");
+    } catch (err) {
+      console.warn("⚠️ Warning: Could not set URI on BayaniNFT:", err.message);
+    }
+  }
 
   // 2. Deploy Core Infrastructure
   console.log("\n2. Deploying Core Infrastructure...");
@@ -185,12 +219,18 @@ async function main() {
   console.log("\n4. Configuring Roles & Authorizations...");
   
   // Set mocks setup roles
-  const MINTER_ROLE = await bayaniNFT.MINTER_ROLE();
-  await (await bayaniNFT.grantRole(MINTER_ROLE, farmerProsperityAddr)).wait();
-  await (await bayaniNFT.grantRole(MINTER_ROLE, fisherfolkRewardsAddr)).wait();
-  await (await bayaniNFT.grantRole(MINTER_ROLE, healthcareAssistanceAddr)).wait();
-  await (await bayaniNFT.grantRole(MINTER_ROLE, bayaniLegacyAddr)).wait();
-  console.log("   - Granted MINTER_ROLE on BayaniNFT to sectoral contracts");
+  if (bayaniNFT) {
+    try {
+      const MINTER_ROLE = await bayaniNFT.MINTER_ROLE();
+      await (await bayaniNFT.grantRole(MINTER_ROLE, farmerProsperityAddr)).wait();
+      await (await bayaniNFT.grantRole(MINTER_ROLE, fisherfolkRewardsAddr)).wait();
+      await (await bayaniNFT.grantRole(MINTER_ROLE, healthcareAssistanceAddr)).wait();
+      await (await bayaniNFT.grantRole(MINTER_ROLE, bayaniLegacyAddr)).wait();
+      console.log("   - Granted MINTER_ROLE on BayaniNFT to sectoral contracts");
+    } catch (err) {
+      console.warn("⚠️ Warning: Could not grant MINTER_ROLE on BayaniNFT (deployer might lack admin rights):", err.message);
+    }
+  }
 
   // Register distributors to rewards treasury
   await (await nationalRewardsTreasury.addAuthorizedContract(farmerProsperityAddr)).wait();
@@ -222,9 +262,18 @@ async function main() {
   // 5. Fund the Rewards Treasury with tokens (e.g., 500,000 BAYANI)
   console.log("\n5. Funding the Rewards Treasury...");
   const initialFunds = ethers.parseEther("500000");
-  await (await bayaniToken.approve(nationalRewardsTreasuryAddr, initialFunds)).wait();
-  await (await nationalRewardsTreasury.depositFunds(initialFunds)).wait();
-  console.log(`   - Deposited ${ethers.formatEther(initialFunds)} BAYANI tokens into Treasury`);
+  try {
+    const deployerBalance = await bayaniToken.balanceOf(deployer.address);
+    if (deployerBalance >= initialFunds) {
+      await (await bayaniToken.approve(nationalRewardsTreasuryAddr, initialFunds)).wait();
+      await (await nationalRewardsTreasury.depositFunds(initialFunds)).wait();
+      console.log(`   - Deposited ${ethers.formatEther(initialFunds)} BAYANI tokens into Treasury`);
+    } else {
+      console.warn(`⚠️ Warning: Deployer balance (${ethers.formatEther(deployerBalance)} BAYANI) is insufficient to fund the Treasury with ${ethers.formatEther(initialFunds)} BAYANI.`);
+    }
+  } catch (err) {
+    console.warn("⚠️ Warning: Could not fund the Rewards Treasury automatically:", err.message);
+  }
 
   // 6. Optional: Handoff roles to Gnosis Safe Multi-Sig (if configured in .env)
   const MULTISIG_ADDRESS = process.env.MULTISIG_ADDRESS || "";

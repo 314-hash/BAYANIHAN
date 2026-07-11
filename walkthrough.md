@@ -332,3 +332,110 @@ We resolved the security concerns highlighted during the pre-deployment readines
 ### 6. Interactive Weather Insurance Frontend Panel
 * **UI Integration ([`frontend/index.html`](file:///c:/Users/janla/Bayanihan/frontend/index.html)):** Added a dedicated "Weather Insurance & Solvency Pool" card widget under the "Supply Chains" dashboard tab. This allows farmers to input their crop NFT ID and premium amount to protect their yields, and includes a "Climate Oracle Simulation" panel to trigger parametric weather claim payouts.
 * **Web3 Event Handlers ([`frontend/app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js)):** Configured Ethers.js event handlers to execute ERC-20 approvals, invoke `payInsurancePremium`, and allow climate oracles (or simulated nodes) to trigger claims via `triggerInsuranceClaim`. Extends full compatibility with local mock/fallback states.
+
+---
+
+## 🌐 Phase 6: BSC Testnet Pre-Mainnet Deployment & Verification Run (July 2026 Update)
+
+To prepare for ultimate mainnet release, we successfully performed an end-to-end deployment and network verification on the **BNB Smart Chain (BSC) Testnet** (Chain ID `97`):
+
+### 1. BSC Testnet Smart Contract Deployments
+We executed the deployment script `scripts/deploy.js` on the BSC Testnet. The full suite of 17 smart contracts was successfully deployed, configured, funded, and finalized:
+* **Mock Tokens:**
+  * `BayaniToken`: `0x081c0F5e54e390eF2C44b516263A3FAc4B15b597`
+  * `BayaniNFT`: `0xDe5810Bd3bf4912fd3c957D4138589A9dd729B4a`
+* **Core Infrastructure:**
+  * `QuantumIdentity`: `0x151a97f32113996252B0278E7aF69b77f6179715`
+  * `AIReputationOracle`: `0x227EA9D0c90b3Ec4Fb6bDCF86fBCC907d1d5a3b4`
+  * `NationalRewardsTreasury`: `0xA0a9F10182C54d0D2BC5a06b52F33a08976e374d`
+* **Sectoral Economic Contracts:**
+  * `FarmerProsperity`: `0x46AecE4c865e073fb5477E4246466479b6b0d7A5`
+  * `FisherfolkRewards`: `0x9718B7611404Edc7D2F2F0c3B5C14204Ebe20B43`
+  * `MSMEGrowth`: `0x997E75112ac37C369B1d2477eE4dEA5Bd119A9fE`
+  * `EducationRewards`: `0x88B594df4682A2b9503e630109DDB4Af68999C5a`
+  * `FreelancerEscrow`: `0xe31CcE08F837FE059Eb35924C7D4Faa870DB78A8`
+  * `RenewableEnergy`: `0x206D7a7C3979c7299c3D8476c0192C0aEa8fCB1C`
+  * `BarangayDAO`: `0xa86128358AffFc46fDe51f665dFf7A5f94Eb6A84`
+  * `HealthcareAssistance`: `0x83D69D6185C3ee7cB0baFad60C6da5B6C4C493a8`
+  * `HousingCooperative`: `0xFb674edb86a9448DE19e19B6672726b1F9edBf49`
+  * `DiasporaNetwork`: `0x64BcF5650e4Fd3aEA51eb3CFcE7D6979c7b02e10`
+  * `NationalAssetTokenization`: `0x95EC0CA8c4493BC268f799E95Cb016447f7DEf84`
+  * `BayaniLegacy`: `0xFaD12DC06eA3f4b54Ca1D8f11158Cf840845D167`
+
+### 2. Configured Roles & Initial Funding
+* **Minter Permissions:** Sectoral contracts were successfully granted `MINTER_ROLE` on the `BayaniNFT` certificate registry.
+* **National Rewards Treasury:** The 10 sectoral contracts were authorized to distribute rewards, and the treasury was pre-funded with **500,000 BAYANI** from the deployer account.
+* **Oracles & Validators:** Oracle roles for the weather, reputation, and smart meter services were granted to the deployer account.
+* **Gnosis Multi-Sig Handoff:** Admin (`DEFAULT_ADMIN_ROLE`) and Governor (`GOVERNOR_ROLE`) privileges for core registry, oracle, and treasury contracts were successfully transferred to the Gnosis Safe Multi-Sig contract address (`0x746fe50362Af424aB9C7a56E90099eF25f19217e`).
+
+### 3. Integrated Client-Side Configuration
+* Updated the `CONTRACT_ADDRESSES` dictionary inside [`frontend/app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js) to resolve the new testnet contract coordinates when connecting on Chain ID `97`.
+* Reconfigured the Veramo KYC API Server in [`.env`](file:///c:/Users/janla/Bayanihan/.env):
+  * Set `RPC_URL` to the public BSC Testnet node.
+  * Set `QUANTUM_IDENTITY_ADDRESS` to the deployed testnet contract.
+  * Configured `VALIDATOR_PRIVATE_KEY` to the deployer private key (which holds the validator role on the testnet contract and BNB for transaction gas fees).
+
+### 4. Verified Services & Frontend Simulator
+* Started the Veramo KYC API Server (`npm run kyc-server`) and verified it initializes correctly with the government Issuer DID, listening on port `3001`.
+* Started the local Web3 Portal server (`npm run dev`) on port `3000`.
+* Verified frontend layout, typography, navigation tabs, and simulation states using browser automation tools, documenting zero rendering errors.
+
+---
+
+## 🚀 Phase 7: BSC Mainnet Deployment & Full BscScan Source Verification (July 2026)
+
+We successfully deployed, confirmed, and publicly verified the full suite of **17 Bayanihan smart contracts** on the **BNB Smart Chain Mainnet** (Chain ID `56`). The contracts are live, immutable, and publicly auditable on BscScan.
+
+### 1. BSC Mainnet Smart Contract Deployments
+
+Deployer wallet: `0x1821F246a27287a2187E1D634B8883030fA14731`
+
+| # | Contract | Mainnet Address | BscScan |
+|---|---|---|---|
+| 1 | BayaniToken | `0x472EA138Cb1F5E414082b39C0158bFec0c1c0831` | [View ↗](https://bscscan.com/address/0x472EA138Cb1F5E414082b39C0158bFec0c1c0831#code) |
+| 2 | BayaniNFT | `0x1746256036e3698c3F4AdbB077a7eFC30D083Fec` | [View ↗](https://bscscan.com/address/0x1746256036e3698c3F4AdbB077a7eFC30D083Fec#code) |
+| 3 | QuantumIdentity | `0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e` | [View ↗](https://bscscan.com/address/0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e#code) |
+| 4 | AIReputationOracle | `0xe094214c40A4F2b220bdBca944d661F53094022A` | [View ↗](https://bscscan.com/address/0xe094214c40A4F2b220bdBca944d661F53094022A#code) |
+| 5 | NationalRewardsTreasury | `0x919404d0999Ab19Eb71a2e652807acEDD8511Bc7` | [View ↗](https://bscscan.com/address/0x919404d0999Ab19Eb71a2e652807acEDD8511Bc7#code) |
+| 6 | FarmerProsperity | `0x756a0Dd94Ce62d8b0ca980ccBef74b4056A95CD7` | [View ↗](https://bscscan.com/address/0x756a0Dd94Ce62d8b0ca980ccBef74b4056A95CD7#code) |
+| 7 | FisherfolkRewards | `0x071b68c7b278202D51b957a71A67b1363F313659` | [View ↗](https://bscscan.com/address/0x071b68c7b278202D51b957a71A67b1363F313659#code) |
+| 8 | MSMEGrowth | `0xa048c0aac38F2053c30E783DbcC6613A48AC797d` | [View ↗](https://bscscan.com/address/0xa048c0aac38F2053c30E783DbcC6613A48AC797d#code) |
+| 9 | EducationRewards | `0xfe1414Dc827F1031B7ea23E37a760DDE16aA7c06` | [View ↗](https://bscscan.com/address/0xfe1414Dc827F1031B7ea23E37a760DDE16aA7c06#code) |
+| 10 | FreelancerEscrow | `0x3021f105c2807Dd5eAB6B818CCd6B9cF68c92429` | [View ↗](https://bscscan.com/address/0x3021f105c2807Dd5eAB6B818CCd6B9cF68c92429#code) |
+| 11 | RenewableEnergy | `0x818a87Ca029403972b13b78cad470861FcEA4db0` | [View ↗](https://bscscan.com/address/0x818a87Ca029403972b13b78cad470861FcEA4db0#code) |
+| 12 | BarangayDAO | `0x9F99fe192d95ADD839e9C2636F70268E621Fb5B0` | [View ↗](https://bscscan.com/address/0x9F99fe192d95ADD839e9C2636F70268E621Fb5B0#code) |
+| 13 | HealthcareAssistance | `0xC8D9eF95241E90FD39895c7c86c32773A91c98fA` | [View ↗](https://bscscan.com/address/0xC8D9eF95241E90FD39895c7c86c32773A91c98fA#code) |
+| 14 | HousingCooperative | `0x23c5Ef9077aeb96da1230aD0C49Bdc79943cbFfA` | [View ↗](https://bscscan.com/address/0x23c5Ef9077aeb96da1230aD0C49Bdc79943cbFfA#code) |
+| 15 | DiasporaNetwork | `0xa62Ad870d8BB023A0C26471Fdb5295308F53f842` | [View ↗](https://bscscan.com/address/0xa62Ad870d8BB023A0C26471Fdb5295308F53f842#code) |
+| 16 | NationalAssetTokenization | `0x9C5516Bc084e57d174295c22a0fC27A00A92153d` | [View ↗](https://bscscan.com/address/0x9C5516Bc084e57d174295c22a0fC27A00A92153d#code) |
+| 17 | BayaniLegacy | `0x3204A4143a953e21A9A51D54a5D1DfdCaa961Ef5` | [View ↗](https://bscscan.com/address/0x3204A4143a953e21A9A51D54a5D1DfdCaa961Ef5#code) |
+
+> All 17 contracts confirmed with **non-zero bytecode** on BSC Mainnet (Chain ID `56`) and publicly source-verified via Hardhat's BscScan verification plugin.
+
+### 2. On-Chain Confirmation Methodology
+
+Deployed addresses were verified by:
+
+1. **Deterministic address calculation** using `ethers.getCreateAddress({ from: deployer, nonce })` for each nonce 1–17.
+2. **Bytecode existence check** via `provider.getCode(address)` against a live BSC Mainnet RPC node — each address returned non-`"0x"` bytecode confirming successful mining.
+3. **BscScan source verification** using `npx hardhat run scripts/verify-contracts.js --network bscMainnet` — all 17 contracts returned `✅` (16 already verified, `NationalRewardsTreasury` submitted fresh and verified live).
+
+### 3. Address Typo Incident & Resolution
+
+During pre-verification bytecode checks, `NationalRewardsTreasury` repeatedly showed `❌ NO BYTECODE`. Investigation revealed a **single character typo** — `552807` vs `652807` — in the middle of the address in all verification and checking scripts. The actual deployed address contains `652807`:
+
+```
+WRONG:   0x919404d0999Ab19Eb71a2e552807acEDD8511Bc7  ← typo, EOA
+CORRECT: 0x919404d0999Ab19Eb71a2e652807acEDD8511Bc7  ← actual mainnet contract
+```
+
+The typo was found and corrected across all 5 affected scripts (`verify-contracts.js`, `test-checksum.js`, `check-nonce.js`, `get-checksum.js`, `check-contract-code.js`). After correction, bytecode was confirmed and source verification succeeded immediately.
+
+### 4. Frontend Contract Address Update
+
+Updated [`frontend/app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js) — the `CONTRACT_ADDRESSES[56]` block — with all 17 verified mainnet addresses. Previously contained 7 empty placeholder slots; now fully populated with the production-verified addresses. The frontend will automatically route to BSC Mainnet contracts when a user connects MetaMask on Chain ID `56`.
+
+### 5. Documentation Updates
+
+Updated all markdown files (`walkthrough.md`, `README.md`, `whitepaper.md`, `pitch.md`) to reflect the mainnet deployment milestone, verified contract addresses, and BSC Mainnet as the live production network.
+

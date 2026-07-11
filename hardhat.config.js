@@ -32,6 +32,9 @@ const config = {
       chainId: 56,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : []
     }
+  },
+  etherscan: {
+    apiKey: process.env.BSCSCAN_API_KEY || ""
   }
 };
 

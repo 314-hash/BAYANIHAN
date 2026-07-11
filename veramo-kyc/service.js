@@ -153,6 +153,21 @@ export async function bridgeToBlockchain(citizenAddress, identityType) {
   try {
     const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
     const key = await getValidatorPrivateKey();
+
+    // Safety check: Prevent using the default Hardhat private key on non-local networks
+    const defaultHardhatKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    const cleanedKey = key.trim().toLowerCase();
+    const hasDefaultKey = cleanedKey === defaultHardhatKey || cleanedKey === defaultHardhatKey.substring(2);
+
+    if (hasDefaultKey) {
+      const network = await provider.getNetwork();
+      const chainId = Number(network.chainId);
+      // Hardhat network chain ID is 31337; Localhost is 1337.
+      if (chainId !== 31337 && chainId !== 1337) {
+        throw new Error(`CRITICAL SECURITY FAILURE: Default Hardhat validator key cannot be used on non-local network (Chain ID: ${chainId}). Please configure a secure private key.`);
+      }
+    }
+
     const wallet = new ethers.Wallet(key, provider);
     const contract = new ethers.Contract(QUANTUM_IDENTITY_ADDRESS, quantumIdentityAbi, wallet);
 

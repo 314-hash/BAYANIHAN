@@ -27,23 +27,33 @@ const CONTRACT_ADDRESSES = {
   },
   // Binance Smart Chain Testnet (97) - Update these with output addresses from deploy script!
   97: {
-    BayaniToken: "0xE1b1aA2fd68925d94FD1C14EA23532b94ea3F538",
-    BayaniNFT: "0x472EA138Cb1F5E414082b39C0158bFec0c1c0831",
-    QuantumIdentity: "0x1746256036e3698c3F4AdbB077a7eFC30D083Fec",
-    AIReputationOracle: "0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e",
-    NationalRewardsTreasury: "0xe094214c40A4F2b220bdBca944d661F53094022A",
-    FarmerProsperity: "0x919404d0999Ab19Eb71a2e552807acEDD8511Bc7",
-    FreelancerEscrow: "0xfe1414Dc827F1031B7ea23E37a760DDE16aA7c06"
+    BayaniToken: "0x081c0F5e54e390eF2C44b516263A3FAc4B15b597",
+    BayaniNFT: "0xDe5810Bd3bf4912fd3c957D4138589A9dd729B4a",
+    QuantumIdentity: "0x151a97f32113996252B0278E7aF69b77f6179715",
+    AIReputationOracle: "0x227EA9D0c90b3Ec4Fb6bDCF86fBCC907d1d5a3b4",
+    NationalRewardsTreasury: "0xA0a9F10182C54d0D2BC5a06b52F33a08976e374d",
+    FarmerProsperity: "0x46AecE4c865e073fb5477E4246466479b6b0d7A5",
+    FreelancerEscrow: "0xe31CcE08F837FE059Eb35924C7D4Faa870DB78A8"
   },
-  // Binance Smart Chain Mainnet (56) - Fill in after mainnet deployment
+  // Binance Smart Chain Mainnet (56) - Deployed & Verified July 2026
   56: {
-    BayaniToken: "",
-    BayaniNFT: "",
-    QuantumIdentity: "",
-    AIReputationOracle: "",
-    NationalRewardsTreasury: "",
-    FarmerProsperity: "",
-    FreelancerEscrow: ""
+    BayaniToken:                "0x472EA138Cb1F5E414082b39C0158bFec0c1c0831",
+    BayaniNFT:                  "0x1746256036e3698c3F4AdbB077a7eFC30D083Fec",
+    QuantumIdentity:            "0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e",
+    AIReputationOracle:         "0xe094214c40A4F2b220bdBca944d661F53094022A",
+    NationalRewardsTreasury:    "0x919404d0999Ab19Eb71a2e652807acEDD8511Bc7",
+    FarmerProsperity:           "0x756a0Dd94Ce62d8b0ca980ccBef74b4056A95CD7",
+    FisherfolkRewards:          "0x071b68c7b278202D51b957a71A67b1363F313659",
+    MSMEGrowth:                 "0xa048c0aac38F2053c30E783DbcC6613A48AC797d",
+    EducationRewards:           "0xfe1414Dc827F1031B7ea23E37a760DDE16aA7c06",
+    FreelancerEscrow:           "0x3021f105c2807Dd5eAB6B818CCd6B9cF68c92429",
+    RenewableEnergy:            "0x818a87Ca029403972b13b78cad470861FcEA4db0",
+    BarangayDAO:                "0x9F99fe192d95ADD839e9C2636F70268E621Fb5B0",
+    HealthcareAssistance:       "0xC8D9eF95241E90FD39895c7c86c32773A91c98fA",
+    HousingCooperative:         "0x23c5Ef9077aeb96da1230aD0C49Bdc79943cbFfA",
+    DiasporaNetwork:            "0xa62Ad870d8BB023A0C26471Fdb5295308F53f842",
+    NationalAssetTokenization:  "0x9C5516Bc084e57d174295c22a0fC27A00A92153d",
+    BayaniLegacy:               "0x3204A4143a953e21A9A51D54a5D1DfdCaa961Ef5"
   }
 };
 // Active contract configuration pointer (default to Localhost)
@@ -1322,3 +1332,125 @@ window.buyRwaShare = function(id) {
   renderRWAs();
   showToast("RWA Share Purchased", `Successfully acquired 1 share of ${rwa.title}. Yield is structured as a direct discount/rebate on services, staying compliant with SEC classification rules.`, "success");
 };
+
+/* ============================================================
+   📱 MOBILE NAVIGATION & INTERACTION CONTROLLER
+   ============================================================ */
+
+(function initMobileNav() {
+  // --- Element references ---
+  const mobileMenuBtn    = document.getElementById("mobileMenuBtn");
+  const mobileDropdown   = document.getElementById("mobileDropdownMenu");
+  const mobileProfileBtn = document.getElementById("mobileProfileToggle");
+  const toggleGuideMobile= document.getElementById("toggleGuideBtnMobile");
+  const profileSidebar   = document.getElementById("profileSidebar");
+  const sidebarCloseBtn  = document.getElementById("sidebarCloseBtn");
+  const sidebarOverlay   = document.getElementById("sidebarOverlay");
+  const mobNavBtns       = document.querySelectorAll(".mob-nav-btn");
+  const tabContents      = document.querySelectorAll(".tab-content");
+  const desktopTabLinks  = document.querySelectorAll(".tab-link");
+
+  // --- Hamburger / Dropdown ---
+  if (mobileMenuBtn && mobileDropdown) {
+    mobileMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = mobileDropdown.classList.toggle("open");
+      mobileMenuBtn.classList.toggle("open", isOpen);
+      mobileMenuBtn.setAttribute("aria-expanded", isOpen);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!mobileDropdown.contains(e.target) && e.target !== mobileMenuBtn) {
+        mobileDropdown.classList.remove("open");
+        mobileMenuBtn.classList.remove("open");
+      }
+    });
+  }
+
+  // --- Mobile Profile Toggle (opens sidebar panel) ---
+  function openSidebar() {
+    if (profileSidebar) profileSidebar.classList.add("mobile-open");
+    if (sidebarOverlay) sidebarOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+    // close dropdown if open
+    if (mobileDropdown) mobileDropdown.classList.remove("open");
+    if (mobileMenuBtn) mobileMenuBtn.classList.remove("open");
+  }
+
+  function closeSidebar() {
+    if (profileSidebar) profileSidebar.classList.remove("mobile-open");
+    if (sidebarOverlay) sidebarOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  if (mobileProfileBtn) mobileProfileBtn.addEventListener("click", openSidebar);
+  if (sidebarCloseBtn)  sidebarCloseBtn.addEventListener("click", closeSidebar);
+  if (sidebarOverlay)   sidebarOverlay.addEventListener("click", closeSidebar);
+
+  // --- Mobile Guide Toggle ---
+  if (toggleGuideMobile) {
+    toggleGuideMobile.addEventListener("click", () => {
+      if (typeof window.toggleHelpBanner === "function") {
+        window.toggleHelpBanner();
+      }
+      if (mobileDropdown) mobileDropdown.classList.remove("open");
+      if (mobileMenuBtn) mobileMenuBtn.classList.remove("open");
+    });
+  }
+
+  // --- Helper: switch tab by ID ---
+  function switchToTab(tabId) {
+    // Tab contents
+    tabContents.forEach(c => c.classList.remove("active"));
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add("active");
+
+    // Sync desktop tab-links
+    desktopTabLinks.forEach(link => {
+      link.classList.toggle("active", link.getAttribute("data-tab") === tabId);
+    });
+
+    // Sync bottom nav buttons
+    mobNavBtns.forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
+    });
+  }
+
+  // --- Bottom Nav Button Clicks ---
+  mobNavBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.getAttribute("data-tab");
+      if (!tabId) return;
+      switchToTab(tabId);
+      // Smooth scroll to top of content
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // --- Keep desktop tabs and bottom nav in sync ---
+  desktopTabLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      const tabId = link.getAttribute("data-tab");
+      mobNavBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
+      });
+    });
+  });
+
+  // --- iOS safe area / touch scroll smoothness ---
+  document.querySelectorAll(".marketplace-listings, .escrow-list, .rwa-list").forEach(el => {
+    el.style.webkitOverflowScrolling = "touch";
+  });
+
+  // --- Close sidebar when pressing Escape ---
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeSidebar();
+      if (mobileDropdown) mobileDropdown.classList.remove("open");
+      if (mobileMenuBtn)  mobileMenuBtn.classList.remove("open");
+    }
+  });
+
+})();
+

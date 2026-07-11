@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#070d19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>🇵🇭 Bayanihan Quantum Commerce Chain - Web Portal</title>
   <meta name="description" content="Decentralized, secure, and compliant digital nation economic operating system for every Filipino.">
   
@@ -34,11 +37,17 @@
       </div>
       
       <div class="wallet-actions">
-        <button id="toggleGuideBtn" class="guide-toggle-btn">📖 Learn & Guide</button>
-        <a href="/simulation" class="sim-portal-btn" title="Step-by-step guided blockchain simulation for all users">⚡ Simulation Portal</a>
         <div id="netStatus" class="network-badge">Local Simulator</div>
         <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
+        <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
       </div>
+    </div>
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobileDropdownMenu" class="mobile-dropdown" aria-hidden="true">
+      <a href="/simulation" class="mobile-menu-item">⚡ Simulation Portal</a>
+      <button id="toggleGuideBtnMobile" class="mobile-menu-item">📖 Learn & Guide</button>
+      <div class="mobile-menu-divider"></div>
+      <button id="mobileProfileToggle" class="mobile-menu-item">🔐 My Identity Card</button>
     </div>
   </header>
 
@@ -136,8 +145,11 @@
   <main class="dashboard-layout">
     
     <!-- Sidebar: Quantum Identity (SBT Profile) -->
-    <aside class="profile-sidebar card">
-      <h2 class="section-title">🔐 Quantum Identity (SBT) <span class="help-tooltip-trigger" data-tooltip="Soulbound Token: A permanent, non-transferable digital ID card verifying your profile.">ℹ️</span></h2>
+    <aside class="profile-sidebar card" id="profileSidebar">
+      <div class="sidebar-mobile-header">
+        <h2 class="section-title">🔐 Quantum Identity (SBT) <span class="help-tooltip-trigger" data-tooltip="Soulbound Token: A permanent, non-transferable digital ID card verifying your profile.">ℹ️</span></h2>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close sidebar">×</button>
+      </div>
       <div class="identity-card">
         <div class="avatar-area">
           <div class="avatar-circle">
@@ -483,8 +495,35 @@
   <!-- Interactive toast messages container -->
   <div id="toastContainer" class="toast-container"></div>
 
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+    <button class="mob-nav-btn active" data-tab="tab-supply" id="mobNav-supply">
+      <span class="mob-nav-icon">🌾</span>
+      <span class="mob-nav-label">Supply</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="tab-msme" id="mobNav-msme">
+      <span class="mob-nav-icon">🏦</span>
+      <span class="mob-nav-label">MSME</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="tab-escrow" id="mobNav-escrow">
+      <span class="mob-nav-icon">💼</span>
+      <span class="mob-nav-label">Escrow</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="tab-governance" id="mobNav-gov">
+      <span class="mob-nav-icon">🏡</span>
+      <span class="mob-nav-label">DAO</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="tab-diaspora" id="mobNav-diaspora">
+      <span class="mob-nav-icon">🌏</span>
+      <span class="mob-nav-label">OFW</span>
+    </button>
+  </nav>
+
+  <!-- Sidebar overlay backdrop for mobile -->
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
   <!-- Loading MetaMask / Ethers dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

@@ -1,6 +1,148 @@
-node_modules/
-cache/
-artifacts/
+# ============================================================
+# 🇵🇭 BAYANIHAN QUANTUM COMMERCE CHAIN — .gitignore
+# Protects: private keys, API secrets, build artifacts, OS junk
+# ============================================================
+
+# ──────────────────────────────────────────────
+# 🔑 SECRETS & ENVIRONMENT — NEVER COMMIT THESE
+# ──────────────────────────────────────────────
 .env
+.env.*
+!.env.example       # keep the template — no real values inside
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OpenBao / Vault token files
+.vault-token
+vault-token*
+
+# ──────────────────────────────────────────────
+# 🪪 VERAMO KYC SYSTEM — sensitive runtime data
+# ──────────────────────────────────────────────
+# SQLite / JSON databases contain private DID keys & signed VCs
+veramo-kyc/database.json
+veramo-kyc/*.sqlite
+veramo-kyc/*.db
+
+# Issued Verifiable Credential samples (may contain PII / real IDs)
+veramo-kyc/vc-*.json
+veramo-kyc/signed-*.json
+
+# ──────────────────────────────────────────────
+# ⚙️ HARDHAT / FOUNDRY BUILD ARTIFACTS
+# ──────────────────────────────────────────────
+artifacts/
+cache/
+typechain/
+typechain-types/
+out/
+broadcast/
+
+# Hardhat network state
+deployments/localhost/
+deployments/.chainId
+
+# ──────────────────────────────────────────────
+# 📦 NODE / NPM
+# ──────────────────────────────────────────────
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ──────────────────────────────────────────────
+# 📝 LOGS — all runtime logs
+# ──────────────────────────────────────────────
 *.log
+logs/
+*.log.*
+
+# ──────────────────────────────────────────────
+# 💻 OPERATING SYSTEM FILES
+# ──────────────────────────────────────────────
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.nfs*
+
+# ──────────────────────────────────────────────
+# 🖊️ IDE & EDITOR FILES
+# ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.settings/
+
+# ──────────────────────────────────────────────
+# 🧪 TEST COVERAGE & REPORTS
+# ──────────────────────────────────────────────
+coverage/
+coverage.json
+.nyc_output/
+mocha-junit*.xml
+junit.xml
+test-results/
+
+# Slither output
+slither-output/
+slither_db.zip
+slither_results.json
+
+# ──────────────────────────────────────────────
+# 📡 DEPLOYMENT STATE FILES
+# ──────────────────────────────────────────────
+# Ignition / deployment manifests (may expose deployer wallet state)
+ignition/deployments/
+deployed_addresses.json
+
+# ──────────────────────────────────────────────
+# 🖼️ IPFS / PINATA UPLOAD ARTEFACTS
+# ──────────────────────────────────────────────
+pinata-upload-*.json
+ipfs-pins.json
+
+# ──────────────────────────────────────────────
+# ⚡ VIEM / FRONTEND BUILD OUTPUTS
+# ──────────────────────────────────────────────
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.vercel/
+
+# ──────────────────────────────────────────────
+# 🔒 MISCELLANEOUS SENSITIVE FILES
+# ──────────────────────────────────────────────
+# Any file named secrets, credentials, or private
+secrets/
+*secret*
+*credentials*
+*private*
+*.seed
+mnemonic.txt
+keystore/
+keystores/

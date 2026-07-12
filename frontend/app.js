@@ -473,8 +473,8 @@ function getKycApiUrl() {
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     return "http://127.0.0.1:3001";
   }
-  // Otherwise, use a configured production endpoint (or relative path if using Vercel proxy rewrites)
-  return "https://bayanihan-kyc.up.railway.app";
+  // Otherwise, route relatively through Vercel rewrite proxy to avoid CORS/mixed-content blocks
+  return "";
 }
 
 async function checkKycServer() {

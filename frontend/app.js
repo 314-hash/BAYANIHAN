@@ -1203,6 +1203,8 @@ async function readOnChainState() {
     
     // Update dashboard labels
     updateVotingPower();
+    updateSwapBalances();
+    updateSwapQuote();
     
   } catch (error) {
     console.error("Error reading on-chain state:", error);
@@ -1859,7 +1861,14 @@ function setupSwapWidget() {
     updateSwapQuote();
   });
   elements.swapToggleBtn.addEventListener("click", toggleSwapDirection);
-  elements.swapExecuteBtn.addEventListener("click", executeSwap);
+  elements.swapExecuteBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!state.web3Connected) {
+      connectWallet();
+    } else {
+      executeSwap();
+    }
+  });
 
   // Preset slippage buttons (0.1%, 0.5%, 1.0%)
   elements.slippageBtns.forEach(btn => {
@@ -2045,10 +2054,16 @@ async function updateSwapQuote() {
   const fromAmount = parseFloat(elements.swapFromAmount.value);
   if (isNaN(fromAmount) || fromAmount <= 0) {
     elements.swapQuoteBox.style.display = "none";
-    elements.swapExecuteBtn.disabled = true;
-    elements.swapExecuteBtn.innerText = state.web3Connected ? "Enter Amount" : "Connect Wallet to Swap";
     elements.swapToAmount.value = "";
     if (elements.swapWarningBox) elements.swapWarningBox.style.display = "none";
+    
+    if (!state.web3Connected) {
+      elements.swapExecuteBtn.disabled = false;
+      elements.swapExecuteBtn.innerText = "Connect Wallet to Swap";
+    } else {
+      elements.swapExecuteBtn.disabled = true;
+      elements.swapExecuteBtn.innerText = "Enter Amount";
+    }
     return;
   }
 
@@ -2182,7 +2197,7 @@ async function updateSwapQuote() {
     elements.swapGasCost.innerText = `~${mockGas.toFixed(5)} BNB (Simulated)`;
     
     elements.swapExecuteBtn.disabled = false;
-    elements.swapExecuteBtn.innerText = state.web3Connected ? "Execute Swap (Simulated)" : "Swap (Simulation Mode)";
+    elements.swapExecuteBtn.innerText = state.web3Connected ? "Execute Swap (Simulated)" : "Connect Wallet to Swap";
   }
 
   // Update slippage labels in UI

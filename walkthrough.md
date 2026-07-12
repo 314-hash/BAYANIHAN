@@ -483,6 +483,7 @@ We developed and integrated a localized Swap Widget directly into the Bayanihan 
 *   **Live Gas Estimation:** Queries the provider's `getFeeData()` on value input to calculate current BSC gas costs in real-time, falling back to a pre-defined gwei benchmark on timeout.
 *   **Router Approvals:** Checks spender allowance when selling `BAYANI` for `BNB`. The swap action button shifts state to "Approve BAYANI" to grant the router spending clearance if required.
 *   **DEX Swaps:** Executes swaps by triggering the wallet to authorize the PancakeSwap router transactions (`swapExactETHForTokens` for buying, or `swapExactTokensForETH` for selling). Computes `amountOutMin` dynamically based on the estimated output scaled down by the user's active slippage selection (e.g. `amountOutMin = estimatedOut * (100 - slippage) / 100`) to protect transactions from MEV and frontrunning attacks.
+*   **Unified Connection Triggers:** Synchronized the Swap card trigger button to detect Web3 connection state, enabling click-to-connect wallet flows directly from the Swap widget and refreshing balance/quotation metrics automatically on connection.
 
 ### 4. Interactive Simulation Fallbacks
 *   **Local Hardhat Mocking:** On local environments or mock connections, the widget safely transitions to simulation mode using a stable price rate (1 BNB = 500,000 BAYANI), updating the user's balances in localStorage to facilitate end-to-end interface walkthroughs without requiring mainnet transactions.

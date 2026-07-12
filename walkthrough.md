@@ -477,6 +477,7 @@ We developed and integrated a localized Swap Widget directly into the Bayanihan 
 *   **WBNB Token Routing:** Structured automated token path routing utilizing the wrapped WBNB addresses on Mainnet and Testnet respectively.
 
 ### 3. Integrated Web3 Client Workflows
+*   **MetaMask Auto-Switch Network:** Prompts users immediately upon clicking "Connect Wallet" if MetaMask is connected to an unsupported network chain, requesting them to switch to BSC Mainnet (`0x38`) or BSC Testnet (`0x61`).
 *   **Dynamic Balances:** Automatically queries both BEP-20 `BAYANI` balance and native `BNB` balance from the MetaMask provider on login.
 *   **On-Chain Auto-Slippage:** When in "Auto" mode, dynamically retrieves PancakeSwap Factory details, calls `getPair()`, queries live pool token reserves (`getReserves()`), and calculates the transaction size relative to the pool depth to scale slippage tolerance safely (from 0.5% up to 5%).
 *   **Live Gas Estimation:** Queries the provider's `getFeeData()` on value input to calculate current BSC gas costs in real-time, falling back to a pre-defined gwei benchmark on timeout.

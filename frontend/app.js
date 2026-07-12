@@ -1025,6 +1025,45 @@ function updateVotingPower() {
   elements.vpTotal.innerText = `${totalPower} Units`;
 }
 
+async function promptSwitchNetwork(chainId) {
+  if (!window.ethereum) return false;
+  const chainIdHex = chainId === 56 ? "0x38" : "0x61";
+  const chainName = chainId === 56 ? "BNB Smart Chain Mainnet" : "BNB Smart Chain Testnet";
+  const rpcUrls = chainId === 56 ? ["https://bsc-dataseed.binance.org/"] : ["https://data-seed-prebsc-1-s1.binance.org:8545/"];
+  const nativeCurrency = { name: "BNB", symbol: "BNB", decimals: 18 };
+  const blockExplorerUrls = chainId === 56 ? ["https://bscscan.com"] : ["https://testnet.bscscan.com"];
+
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: chainIdHex }],
+    });
+    return true;
+  } catch (switchError) {
+    if (switchError.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: chainIdHex,
+              chainName: chainName,
+              rpcUrls: rpcUrls,
+              nativeCurrency: nativeCurrency,
+              blockExplorerUrls: blockExplorerUrls
+            },
+          ],
+        });
+        return true;
+      } catch (addError) {
+        console.error("Failed to add network:", addError);
+      }
+    }
+    console.error("Failed to switch network:", switchError);
+    return false;
+  }
+}
+
 // -------------------------------------------------------------
 // DUAL-MODE WEB3 CONNECTIVITY VIA ETHERS.JS
 // -------------------------------------------------------------
@@ -1062,9 +1101,15 @@ async function connectWallet() {
       showToast("Connected to BSC Mainnet", "Using BSC Mainnet smart contract configurations.", "success");
       if (elements.addTokenBtn) elements.addTokenBtn.style.display = "block";
     } else {
+      showToast("Unsupported Network", `Connected to Chain ID ${chainId}. Prompting to switch to BSC Mainnet...`, "warning");
+      const switched = await promptSwitchNetwork(56);
+      if (switched) {
+        // reloading will occur via the chainChanged event listener
+        return;
+      }
       activeAddresses = CONTRACT_ADDRESSES[31337]; // Fallback
       if (elements.addTokenBtn) elements.addTokenBtn.style.display = "none";
-      showToast("Unknown Network", `Connected to Chain ID ${chainId}. Defaulting to localhost settings.`, "warning");
+      showToast("Using Simulator Fallback", "Defaulting to localhost simulation setup.", "info");
     }
     
     state.web3Connected = true;

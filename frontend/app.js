@@ -123,6 +123,8 @@ const CONTRACT_ABIS = {
 // Application State
 let state = {
   web3Connected: false,
+  onboardingSkipped: false,
+  biometricsScanned: false,
   userAddress: null,
   userRole: 1, // Default: Farmer (Type 1)
   stakedAmount: 0,
@@ -275,7 +277,21 @@ const elements = {
   toastContainer: document.getElementById("toastContainer"),
   starBtns: document.querySelectorAll(".star-btn"),
   toggleGuideBtn: document.getElementById("toggleGuideBtn"),
-  helpSection: document.getElementById("helpSection")
+  helpSection: document.getElementById("helpSection"),
+  onboardingModal: document.getElementById("onboardingModal"),
+  onboardingForm: document.getElementById("onboardingForm"),
+  onboardFullName: document.getElementById("onboardFullName"),
+  onboardNid: document.getElementById("onboardNid"),
+  onboardRole: document.getElementById("onboardRole"),
+  startScanBtn: document.getElementById("startScanBtn"),
+  scannerStatus: document.getElementById("scannerStatus"),
+  scannerScreen: document.getElementById("scannerScreen"),
+  scannerLaser: document.getElementById("scannerLaser"),
+  scannerEmoji: document.getElementById("scannerEmoji"),
+  onboardStatusLog: document.getElementById("onboardStatusLog"),
+  onboardStatusMsg: document.getElementById("onboardStatusMsg"),
+  onboardSubmitBtn: document.getElementById("onboardSubmitBtn"),
+  skipOnboardBtn: document.getElementById("skipOnboardBtn")
 };
 
 // Rating Stars State
@@ -289,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupStarButtons();
   setupSimulationEvents();
   setupKycEvents();
+  setupOnboarding();
   renderMarketplace();
   renderEscrows();
   renderProposals();
@@ -580,6 +597,131 @@ function setupKycEvents() {
   });
 }
 
+// -------------------------------------------------------------
+// USER ONBOARDING & REGISTRATION SYSTEM (SBT MINTING FLOW)
+// -------------------------------------------------------------
+
+function setupOnboarding() {
+  if (!elements.onboardingModal) return;
+
+  elements.skipOnboardBtn.addEventListener("click", () => {
+    state.onboardingSkipped = true;
+    elements.onboardingModal.style.display = "none";
+    showToast("Simulator Active", "You are now viewing the dashboard in simulation mode.", "info");
+  });
+
+  elements.startScanBtn.addEventListener("click", startBiometricScan);
+  elements.onboardingForm.addEventListener("submit", handleOnboardingSubmit);
+}
+
+function startBiometricScan() {
+  elements.startScanBtn.disabled = true;
+  elements.scannerStatus.innerText = "Scanning...";
+  elements.scannerStatus.className = "scanner-badge badge-active";
+  elements.scannerLaser.style.display = "block";
+  elements.scannerEmoji.classList.add("scanning");
+
+  showToast("Scanning", "Simulating secure biometric face-scan sequence...", "info");
+
+  setTimeout(() => {
+    elements.scannerStatus.innerText = "Success";
+    elements.scannerStatus.className = "scanner-badge badge-success";
+    elements.scannerLaser.style.display = "none";
+    elements.scannerEmoji.classList.remove("scanning");
+    elements.scannerEmoji.innerText = "👤✅";
+
+    state.biometricsScanned = true;
+    elements.onboardSubmitBtn.disabled = false;
+
+    showToast("Scan Success", "Biometric signature successfully captured and verified.", "success");
+  }, 2200);
+}
+
+async function handleOnboardingSubmit(e) {
+  e.preventDefault();
+
+  if (!state.biometricsScanned) {
+    showToast("Error", "Please scan your biometrics first.", "error");
+    return;
+  }
+
+  const name = elements.onboardFullName.value.trim();
+  const rawNid = elements.onboardNid.value.trim();
+  const roleType = Number(elements.onboardRole.value);
+
+  if (!name || !rawNid) {
+    showToast("Error", "Please complete all fields.", "error");
+    return;
+  }
+
+  const nidHash = `NID_ONBOARD_${rawNid.substring(0, 6).toUpperCase()}`;
+
+  elements.onboardSubmitBtn.disabled = true;
+  elements.skipOnboardBtn.disabled = true;
+  elements.onboardStatusLog.style.display = "flex";
+  
+  try {
+    // 1/2: VC Generation
+    elements.onboardStatusMsg.innerText = "1/2: Generating signed VC from Veramo KYC backend...";
+    const issueRes = await fetch(`${getKycApiUrl()}/api/kyc/issue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        citizenAddress: state.userAddress,
+        nidHash: nidHash,
+        biometricHash: "BIO_ONBOARD_ACTIVE_HASH",
+        identityType: roleType
+      })
+    });
+
+    if (!issueRes.ok) {
+      const errData = await issueRes.json();
+      throw new Error(errData.error || "Failed to generate Verifiable Credential.");
+    }
+
+    const issueData = await issueRes.json();
+    const signedVc = issueData.verifiableCredential;
+
+    // 2/2: On-chain Verification & Bridging
+    elements.onboardStatusMsg.innerText = "2/2: Verifying credential & bridging on-chain via validator...";
+    const bridgeRes = await fetch(`${getKycApiUrl()}/api/kyc/bridge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vc: signedVc })
+    });
+
+    if (!bridgeRes.ok) {
+      const errData = await bridgeRes.json();
+      throw new Error(errData.error || "Failed to bridge KYC profile on-chain.");
+    }
+
+    const bridgeData = await bridgeRes.json();
+
+    showToast("Onboarding Success!", "Soulbound ID successfully minted on-chain!", "success");
+    
+    // Hide modal and resume dashboard view
+    elements.onboardingModal.style.display = "none";
+    elements.onboardStatusLog.style.display = "none";
+
+    // Set role state in frontend
+    state.userRole = roleType;
+    elements.simulateRole.value = roleType.toString();
+
+    // Reload the full on-chain state to refresh dashboard elements
+    await readOnChainState();
+
+  } catch (error) {
+    console.error("KYC Onboarding Error:", error);
+    showToast("Onboarding Failed", error.message || "Credential bridging failed.", "error");
+    
+    // Reset state so user can retry
+    elements.onboardSubmitBtn.disabled = false;
+    elements.skipOnboardBtn.disabled = false;
+    elements.onboardStatusLog.style.display = "none";
+  }
+}
+
+
 
 // Update MSME Credit Ring Gauge
 function updateCreditGauge() {
@@ -717,6 +859,11 @@ async function readOnChainState() {
       const pqInfo = await contracts.QuantumIdentity.getPQKey(state.userAddress).catch(() => null);
       if (pqInfo && pqInfo.algorithm) {
         elements.profileAlgo.innerText = pqInfo.algorithm;
+      }
+    } else {
+      // Trigger onboarding modal if wallet connected and not yet skipped
+      if (state.web3Connected && !state.onboardingSkipped) {
+        elements.onboardingModal.style.display = "flex";
       }
     }
     

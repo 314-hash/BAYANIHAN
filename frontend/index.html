@@ -519,6 +519,65 @@
     </button>
   </nav>
 
+  <!-- Onboarding KYC Registration Modal -->
+  <div id="onboardingModal" class="onboarding-overlay" style="display: none;">
+    <div class="onboarding-card card">
+      <div class="onboarding-header">
+        <span class="onboarding-logo">🇵🇭</span>
+        <h2>Bayanihan Citizen Onboarding</h2>
+        <p>Complete your on-chain identity setup to access the commerce network.</p>
+      </div>
+
+      <form id="onboardingForm" class="input-form">
+        <div class="form-group">
+          <label for="onboardFullName">Full Legal Name:</label>
+          <input type="text" id="onboardFullName" placeholder="e.g. Juan Dela Cruz" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="onboardNid">National ID Number:</label>
+          <input type="text" id="onboardNid" placeholder="e.g. PhilSys Number" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="onboardRole">Economic Pillar / Sector:</label>
+          <select id="onboardRole" class="form-input" required>
+            <option value="" disabled selected>Select your active sector...</option>
+            <option value="1">Farmer (Pillar 1 - Agriculture)</option>
+            <option value="2">Fisherfolk (Pillar 1 - Fisheries)</option>
+            <option value="3">MSME Merchant (Pillar 2 - Local Trade)</option>
+            <option value="4">Freelancer (Pillar 3 - Services)</option>
+            <option value="5">OFW Diaspora (Pillar 5 - Foreign Remittance)</option>
+            <option value="0">General Citizen</option>
+          </select>
+        </div>
+
+        <!-- Biometric Simulator -->
+        <div class="biometric-scanner-box">
+          <div class="scanner-header">
+            <span>🧬 Biometric Verification (Face Scan)</span>
+            <span id="scannerStatus" class="scanner-badge badge-pending">Ready</span>
+          </div>
+          <div class="scanner-screen" id="scannerScreen">
+            <div class="scanner-grid-overlay"></div>
+            <div class="scanner-laser" id="scannerLaser" style="display: none;"></div>
+            <span class="scanner-emoji" id="scannerEmoji">👤</span>
+          </div>
+          <button type="button" id="startScanBtn" class="secondary-btn btn-sm">Scan Biometrics</button>
+        </div>
+
+        <div class="onboarding-status-log" id="onboardStatusLog" style="display: none;">
+          <div class="status-log-spinner"></div>
+          <p id="onboardStatusMsg">Starting validation...</p>
+        </div>
+
+        <button type="submit" id="onboardSubmitBtn" class="primary-btn" disabled>Complete On-Chain Registration</button>
+      </form>
+      
+      <button id="skipOnboardBtn" class="skip-btn" type="button">Skip & Browse Simulator</button>
+    </div>
+  </div>
+
   <!-- Sidebar overlay backdrop for mobile -->
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 

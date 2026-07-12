@@ -2248,4 +2248,48 @@ header {
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Tesseract OCR Styling */
+.input-with-button-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-with-button-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.ocr-scan-btn-label {
+  background: rgba(255, 199, 44, 0.1);
+  border: 1px solid rgba(255, 199, 44, 0.25);
+  color: var(--gold);
+  padding: 0.6rem 0.95rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-header);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: var(--transition-normal);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ocr-scan-btn-label:hover {
+  background: rgba(255, 199, 44, 0.2);
+  border-color: rgba(255, 199, 44, 0.45);
+  transform: translateY(-1px);
+}
+
+.ocr-scan-btn-label:active {
+  transform: translateY(0);
+}
+
+
 

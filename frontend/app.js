@@ -291,7 +291,8 @@ const elements = {
   onboardStatusLog: document.getElementById("onboardStatusLog"),
   onboardStatusMsg: document.getElementById("onboardStatusMsg"),
   onboardSubmitBtn: document.getElementById("onboardSubmitBtn"),
-  skipOnboardBtn: document.getElementById("skipOnboardBtn")
+  skipOnboardBtn: document.getElementById("skipOnboardBtn"),
+  onboardIdFile: document.getElementById("onboardIdFile")
 };
 
 // Rating Stars State
@@ -621,6 +622,87 @@ function setupOnboarding() {
 
   elements.startScanBtn.addEventListener("click", startBiometricScan);
   elements.onboardingForm.addEventListener("submit", handleOnboardingSubmit);
+
+  // File upload trigger for OCR Scan
+  elements.onboardIdFile.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      await handleIdCardOcr(file);
+    }
+  });
+}
+
+async function handleIdCardOcr(file) {
+  if (typeof Tesseract === "undefined") {
+    showToast("OCR Error", "Tesseract.js library is not loaded. Please ensure you are online.", "error");
+    return;
+  }
+
+  // Display status log loader
+  elements.onboardSubmitBtn.disabled = true;
+  elements.skipOnboardBtn.disabled = true;
+  elements.onboardStatusLog.style.display = "flex";
+  elements.onboardStatusMsg.innerText = "OCR: Initializing Tesseract engine...";
+
+  showToast("OCR Scan Started", "Extracting text from ID Card image locally in-browser...", "info");
+
+  try {
+    const result = await Tesseract.recognize(file, 'eng', {
+      logger: m => {
+        if (m.status === "recognizing text") {
+          const progress = Math.round(m.progress * 100);
+          elements.onboardStatusMsg.innerText = `OCR: Recognizing text... (${progress}%)`;
+        }
+      }
+    });
+
+    const text = result.data.text || "";
+    console.log("Tesseract Raw Output:", text);
+
+    // Look for standard Philippine PhilSys ID (16 digits, with/without hyphens) or custom numeric sequences
+    const philsysMatch = text.match(/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/);
+    const genericMatch16 = text.match(/\b\d{12,16}\b/);
+    const genericMatch8 = text.match(/\b\d{6,11}\b/);
+
+    let idResult = "";
+    if (philsysMatch) {
+      idResult = philsysMatch[0].replace(/[-\s]/g, ""); // strip dividers
+    } else if (genericMatch16) {
+      idResult = genericMatch16[0];
+    } else if (genericMatch8) {
+      idResult = genericMatch8[0];
+    } else {
+      // Pull first sequence of 4+ numbers
+      const fallback = text.match(/\b\d{4,}\b/);
+      if (fallback) {
+        idResult = fallback[0];
+      }
+    }
+
+    if (idResult) {
+      elements.onboardNid.value = idResult;
+      showToast("OCR Scan Success", `Extracted National ID: ${idResult}`, "success");
+    } else {
+      // Fallback: use first alphanumeric string line
+      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 3);
+      if (lines.length > 0) {
+        const clean = lines[0].replace(/[^a-zA-Z0-9]/g, "");
+        elements.onboardNid.value = clean.substring(0, 16);
+        showToast("OCR Scan Partial", "Parsed text block. Please check that NID is correct.", "warning");
+      } else {
+        throw new Error("No readable text found on the card image.");
+      }
+    }
+
+  } catch (error) {
+    console.error("Tesseract scan failed:", error);
+    showToast("OCR Scan Failed", "Could not read text from image. Please enter details manually.", "error");
+  } finally {
+    // Reset scanner submit/cancel buttons
+    elements.onboardSubmitBtn.disabled = !state.biometricsScanned;
+    elements.skipOnboardBtn.disabled = false;
+    elements.onboardStatusLog.style.display = "none";
+  }
 }
 
 function startBiometricScan() {

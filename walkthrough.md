@@ -264,6 +264,23 @@ We built and integrated a Web3 KYC API Server to allow the frontend web portal t
 * **VC Issuance Flow**: Users can input their National ID Hash and click **1. Request Verifiable Credential**, which calls the API and prints the signed VC claim subject to a text area.
 * **Blockchain Bridging Flow**: Clicking **2. Verify & Bridge On-Chain** sends the VC back to the server, verifying it and bridging the profile state onto the blockchain. The UI automatically displays the tx hash and updates the citizen's Biometric State to **Verified Active (VC)** in green.
 
+### 4. Address-Bound Profile Persistence (LocalStorage Caching)
+To preserve registration parameters (like the citizen's Full Legal Name) which cannot be stored on-chain for privacy/GDPR compliance:
+* Integrated a localStorage caching mechanism inside `handleOnboardingSubmit` and `setupKycEvents()`.
+* Profile payloads (Full Name, NID Hash, Role Type, and Verifiable Credential) are stored under a unique key derived from the user's active wallet address: `bayanihan_profile_${walletAddress.toLowerCase()}`.
+* In `readOnChainState()`, when a verified address connects, it retrieves the user's name from localStorage dynamically, ensuring that the profile card loads their real name instead of generic labels, even across page reloads and wallet switches.
+
+---
+
+## 🔍 Validation Checklist
+
+* **MetaMask Disconnected**: Displays default simulated values and allows manual pillar selection (simulate mode).
+* **Unverified MetaMask Connected**: Instantly intercepts the session and demands onboarding details.
+* **Biometric Signature Scan**: Visual progress laser sweeps and locks button states successfully.
+* **Submit Pipeline**: Veramo generates the VC, passes it to the remote signer, and executes the on-chain register transaction.
+* **On-Chain Profile Refresh**: The sidebar successfully updates to "Verified Profile" and shows the logged national ID hash directly from the contract.
+* **Address Switching**: Switching accounts in MetaMask automatically loads the corresponding credentials and name from local storage.
+
 ---
 
 ## 💼 Phase 3: Investor Readiness Suite

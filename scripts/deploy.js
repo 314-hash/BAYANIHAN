@@ -279,26 +279,47 @@ async function main() {
   const MULTISIG_ADDRESS = process.env.MULTISIG_ADDRESS || "";
   if (MULTISIG_ADDRESS && ethers.isAddress(MULTISIG_ADDRESS)) {
     console.log(`\n6. Transferring Admin & Governor Roles to Multi-Sig...`);
-    const DEFAULT_ADMIN_ROLE = await quantumIdentity.DEFAULT_ADMIN_ROLE();
-    const GOVERNOR_ROLE = await quantumIdentity.GOVERNOR_ROLE();
+    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
+
+    const accessControlledContracts = [
+      { name: "BayaniToken", contract: bayaniToken, hasGovernor: false },
+      { name: "BayaniNFT", contract: bayaniNFT, hasGovernor: false },
+      { name: "QuantumIdentity", contract: quantumIdentity, hasGovernor: true },
+      { name: "NationalRewardsTreasury", contract: nationalRewardsTreasury, hasGovernor: true },
+      { name: "AIReputationOracle", contract: aiReputationOracle, hasGovernor: true },
+      { name: "FarmerProsperity", contract: farmerProsperity, hasGovernor: true },
+      { name: "FisherfolkRewards", contract: fisherfolkRewards, hasGovernor: true },
+      { name: "MSMEGrowth", contract: msmeGrowth, hasGovernor: true },
+      { name: "EducationRewards", contract: educationRewards, hasGovernor: true },
+      { name: "FreelancerEscrow", contract: freelancerEscrow, hasGovernor: true },
+      { name: "RenewableEnergy", contract: renewableEnergy, hasGovernor: true },
+      { name: "BarangayDAO", contract: barangayDAO, hasGovernor: true },
+      { name: "HealthcareAssistance", contract: healthcareAssistance, hasGovernor: true },
+      { name: "HousingCooperative", contract: housingCooperative, hasGovernor: true },
+      { name: "DiasporaNetwork", contract: diasporaNetwork, hasGovernor: true },
+      { name: "NationalAssetTokenization", contract: nationalAssetTokenization, hasGovernor: true },
+      { name: "BayaniLegacy", contract: bayaniLegacy, hasGovernor: true }
+    ];
+
+    for (const item of accessControlledContracts) {
+      if (!item.contract) continue;
+      console.log(`   - Transferring roles for ${item.name}...`);
+      
+      // Grant roles to Multi-Sig
+      await (await item.contract.grantRole(DEFAULT_ADMIN_ROLE, MULTISIG_ADDRESS)).wait();
+      if (item.hasGovernor) {
+        const GOVERNOR_ROLE = await item.contract.GOVERNOR_ROLE();
+        await (await item.contract.grantRole(GOVERNOR_ROLE, MULTISIG_ADDRESS)).wait();
+        
+        // Revoke governor from deployer
+        await (await item.contract.revokeRole(GOVERNOR_ROLE, deployer.address)).wait();
+      }
+      
+      // Revoke admin from deployer
+      await (await item.contract.revokeRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
+    }
     
-    // Grant roles to Multi-Sig on core contracts
-    await (await quantumIdentity.grantRole(DEFAULT_ADMIN_ROLE, MULTISIG_ADDRESS)).wait();
-    await (await quantumIdentity.grantRole(GOVERNOR_ROLE, MULTISIG_ADDRESS)).wait();
-    await (await nationalRewardsTreasury.grantRole(DEFAULT_ADMIN_ROLE, MULTISIG_ADDRESS)).wait();
-    await (await nationalRewardsTreasury.grantRole(GOVERNOR_ROLE, MULTISIG_ADDRESS)).wait();
-    await (await aiReputationOracle.grantRole(DEFAULT_ADMIN_ROLE, MULTISIG_ADDRESS)).wait();
-    await (await aiReputationOracle.grantRole(GOVERNOR_ROLE, MULTISIG_ADDRESS)).wait();
-    
-    // Revoke roles from deployer
-    await (await quantumIdentity.revokeRole(GOVERNOR_ROLE, deployer.address)).wait();
-    await (await quantumIdentity.revokeRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
-    await (await nationalRewardsTreasury.revokeRole(GOVERNOR_ROLE, deployer.address)).wait();
-    await (await nationalRewardsTreasury.revokeRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
-    await (await aiReputationOracle.revokeRole(GOVERNOR_ROLE, deployer.address)).wait();
-    await (await aiReputationOracle.revokeRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
-    
-    console.log(`   - Successfully handoff core contract roles to: ${MULTISIG_ADDRESS}`);
+    console.log(`   - Successfully handed off all contract roles to Multi-Sig: ${MULTISIG_ADDRESS}`);
   } else {
     console.log("\n6. Handoff to Multi-Sig skipped (MULTISIG_ADDRESS not configured or invalid).");
   }

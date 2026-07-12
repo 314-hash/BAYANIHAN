@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # 1. Local Hardhat Blockchain Node
+  hardhat-node:
+    build: .
+    command: npx hardhat node --hostname 0.0.0.0
+    ports:
+      - "8545:8545"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # 2. OpenBao Secrets Manager (Vault KV v2 Engine)
+  openbao:
+    image: openbao/openbao:latest
+    ports:
+      - "8200:8200"
+    environment:
+      - BAO_DEV_ROOT_TOKEN_ID=your-bao-token-here
+      - BAO_ADDR=http://0.0.0.0:8200
+    command: server -dev -dev-root-token-id="your-bao-token-here"
+
+  # 3. OpenBao Auto-Initialization (Injects private key secret)
+  openbao-init:
+    image: curlimages/curl:latest
+    depends_on:
+      - openbao
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        echo "Waiting for OpenBao to initialize..."
+        until curl -sf http://openbao:8200/v1/sys/health > /dev/null; do sleep 1; done
+        echo "OpenBao is online. Injecting validator private key..."
+        curl --header "X-Vault-Token: your-bao-token-here" \
+             --request POST \
+             --data '{"data":{"validator_private_key":"0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"}}' \
+             http://openbao:8200/v1/secret/data/bayanihan/kyc
+        echo "Secret successfully injected!"
+
+  # 4. Veramo KYC Backend Server
+  kyc-server:
+    build: .
+    command: node veramo-kyc/server.js
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - RPC_URL=http://hardhat-node:8545
+      - QUANTUM_IDENTITY_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 # Hardhat default address mapping
+      - OPENBAO_URL=http://openbao:8200
+      - OPENBAO_TOKEN=your-bao-token-here
+      - OPENBAO_SECRET_PATH=secret/data/bayanihan/kyc
+      - OPENBAO_SECRET_KEY=validator_private_key
+      - OPENBAO_USE_TRANSIT=false
+    depends_on:
+      - hardhat-node
+      - openbao-init
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # 5. Dashboard Frontend Server
+  frontend:
+    build: .
+    command: npx http-server frontend -p 3000 -a 0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - kyc-server
+    volumes:
+      - .:/app
+      - /app/node_modules

@@ -23,6 +23,10 @@
     }
   ],
   "rewrites": [
+    { "source": "/v1/secret/data/bayanihan/kyc", "destination": "/api/v1/secret/data/bayanihan/kyc.js" },
+    { "source": "/v1/ethereum/address", "destination": "/api/v1/ethereum/address.js" },
+    { "source": "/v1/ethereum/sign-transaction", "destination": "/api/v1/ethereum/sign-transaction.js" },
+    { "source": "/v1/ethereum/sign-message", "destination": "/api/v1/ethereum/sign-message.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

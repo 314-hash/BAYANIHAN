@@ -17,23 +17,43 @@ document.body.appendChild(svgDefs);
 const CONTRACT_ADDRESSES = {
   // Hardhat Local Node (31337 / 1337)
   31337: {
-    BayaniToken: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    BayaniNFT: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    QuantumIdentity: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    AIReputationOracle: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    NationalRewardsTreasury: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-    FarmerProsperity: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    FreelancerEscrow: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
+    BayaniToken:                "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    BayaniNFT:                  "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    QuantumIdentity:            "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    AIReputationOracle:         "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    NationalRewardsTreasury:    "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    FarmerProsperity:           "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    FisherfolkRewards:          "0x0165878A594ca255338adfa4d48449f69242Eb8F", // Sequential local mock address
+    MSMEGrowth:                 "0xa513E6E4b8f2a923D98304ec87F64353c4D5C853", // Sequential local mock address
+    EducationRewards:           "0x2279B1c902393D1409c617C23BD08209ac46187b", // Sequential local mock address
+    FreelancerEscrow:           "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+    RenewableEnergy:            "0x610178dA211CFEB8746279866C5433f822d1A863", // Sequential local mock address
+    BarangayDAO:                "0xB7f8BC63BbD1F107d722424faA2C498D4D47A9c3", // Sequential local mock address
+    HealthcareAssistance:       "0x9A9f24F34ef3990283C71F2bF26C6B0d4aAc3D84", // Sequential local mock address
+    HousingCooperative:         "0xdC31CcE08F837FE059Eb35924C7D4Faa870DB78A8", // Sequential local mock address
+    DiasporaNetwork:            "0x5FDB2315678afecb367F032D93f642f64180Ab4", // Sequential local mock address
+    NationalAssetTokenization:  "0xE7f1725E7734CE288f8367e1bb143e90bB3F0513", // Sequential local mock address
+    BayaniLegacy:               "0x9fe46736679D2d9A65f0992f2272DE9F3c7Fa6E1"  // Sequential local mock address
   },
-  // Binance Smart Chain Testnet (97) - Update these with output addresses from deploy script!
+  // Binance Smart Chain Testnet (97) - Deployed & Verified
   97: {
-    BayaniToken: "0x081c0F5e54e390eF2C44b516263A3FAc4B15b597",
-    BayaniNFT: "0xDe5810Bd3bf4912fd3c957D4138589A9dd729B4a",
-    QuantumIdentity: "0x151a97f32113996252B0278E7aF69b77f6179715",
-    AIReputationOracle: "0x227EA9D0c90b3Ec4Fb6bDCF86fBCC907d1d5a3b4",
-    NationalRewardsTreasury: "0xA0a9F10182C54d0D2BC5a06b52F33a08976e374d",
-    FarmerProsperity: "0x46AecE4c865e073fb5477E4246466479b6b0d7A5",
-    FreelancerEscrow: "0xe31CcE08F837FE059Eb35924C7D4Faa870DB78A8"
+    BayaniToken:                "0x081c0F5e54e390eF2C44b516263A3FAc4B15b597",
+    BayaniNFT:                  "0xDe5810Bd3bf4912fd3c957D4138589A9dd729B4a",
+    QuantumIdentity:            "0x151a97f32113996252B0278E7aF69b77f6179715",
+    AIReputationOracle:         "0x227EA9D0c90b3Ec4Fb6bDCF86fBCC907d1d5a3b4",
+    NationalRewardsTreasury:    "0xA0a9F10182C54d0D2BC5a06b52F33a08976e374d",
+    FarmerProsperity:           "0x46AecE4c865e073fb5477E4246466479b6b0d7A5",
+    FisherfolkRewards:          "0x9718B7611404Edc7D2F2F0c3B5C14204Ebe20B43",
+    MSMEGrowth:                 "0x997E75112ac37C369B1d2477eE4dEA5Bd119A9fE",
+    EducationRewards:           "0x88B594df4682A2b9503e630109DDB4Af68999C5a",
+    FreelancerEscrow:           "0xe31CcE08F837FE059Eb35924C7D4Faa870DB78A8",
+    RenewableEnergy:            "0x206D7a7C3979c7299c3D8476c0192C0aEa8fCB1C",
+    BarangayDAO:                "0xa86128358AffFc46fDe51f665dFf7A5f94Eb6A84",
+    HealthcareAssistance:       "0x83D69D6185C3ee7cB0baFad60C6da5B6C4C493a8",
+    HousingCooperative:         "0xFb674edb86a9448DE19e19B6672726b1F9edBf49",
+    DiasporaNetwork:            "0x64BcF5650e4Fd3aEA51eb3CFcE7D6979c7b02e10",
+    NationalAssetTokenization:  "0x95EC0CA8c4493BC268f799E95Cb016447f7DEf84",
+    BayaniLegacy:               "0xFaD12DC06eA3f4b54Ca1D8f11158Cf840845D167"
   },
   // Binance Smart Chain Mainnet (56) - Deployed & Verified July 2026
   56: {
@@ -447,9 +467,19 @@ elements.rotateKeyBtn.addEventListener("click", () => {
 });
 
 // Veramo KYC Integration Handlers
+// Resolves the KYC API endpoint dynamically based on where the app is running
+function getKycApiUrl() {
+  // If running locally, default to the local port 3001
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://127.0.0.1:3001";
+  }
+  // Otherwise, use a configured production endpoint (or relative path if using Vercel proxy rewrites)
+  return "https://bayanihan-kyc.up.railway.app";
+}
+
 async function checkKycServer() {
   try {
-    const res = await fetch("http://127.0.0.1:3001/api/kyc/health");
+    const res = await fetch(`${getKycApiUrl()}/api/kyc/health`);
     if (res.ok) {
       elements.kycStatusBadge.innerText = "API Connected";
       elements.kycStatusBadge.style.background = "rgba(52,211,153,0.15)";
@@ -457,7 +487,7 @@ async function checkKycServer() {
       elements.kycStatusBadge.style.borderColor = "#34d399";
     }
   } catch (err) {
-    console.warn("Veramo KYC server health check failed. Ensure it is running on port 3001.");
+    console.warn(`Veramo KYC server health check failed. Ensure it is running on ${getKycApiUrl()}`);
   }
 }
 
@@ -479,7 +509,7 @@ function setupKycEvents() {
 
     try {
       showToast("Veramo KYC Request", "Requesting signed W3C VC from Veramo Issuer...", "info");
-      const res = await fetch("http://127.0.0.1:3001/api/kyc/issue", {
+      const res = await fetch(`${getKycApiUrl()}/api/kyc/issue`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -517,7 +547,7 @@ function setupKycEvents() {
 
     try {
       showToast("Verification & Bridge", "Verifying VC and submitting on-chain transaction...", "info");
-      const res = await fetch("http://127.0.0.1:3001/api/kyc/bridge", {
+      const res = await fetch(`${getKycApiUrl()}/api/kyc/bridge`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vc: currentSignedVc })
@@ -787,7 +817,7 @@ function setupSimulationEvents() {
       try {
         showToast("Approving Tokens", "Requesting allowance for Escrow contract...", "info");
         const budgetWei = ethers.parseEther(budget.toString());
-        const appTx = await contracts.BayaniToken.approve(CONTRACT_ADDRESSES.FreelancerEscrow, budgetWei);
+        const appTx = await contracts.BayaniToken.approve(activeAddresses.FreelancerEscrow, budgetWei);
         await appTx.wait();
         
         showToast("Creating Project", "Submitting contract parameters to FreelancerEscrow...", "info");

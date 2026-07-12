@@ -222,13 +222,40 @@ export async function verifyVC(vc) {
 /**
  * Bridge the verified credential state onto the Ethereum blockchain.
  */
-export async function bridgeToBlockchain(citizenAddress, identityType) {
+export async function bridgeToBlockchain(citizenAddress, identityType, chainId) {
   if (!quantumIdentityAbi) {
     throw new Error("Cannot bridge to blockchain: QuantumIdentity.json build artifact not found.");
   }
 
+  const NETWORKS = {
+    31337: {
+      rpc: "http://127.0.0.1:8545",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+    },
+    1337: {
+      rpc: "http://127.0.0.1:8545",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+    },
+    97: {
+      rpc: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+      address: "0x151a97f32113996252B0278E7aF69b77f6179715"
+    },
+    56: {
+      rpc: "https://bsc-dataseed.binance.org/",
+      address: "0x1963cfF2Aa81C0263C25BC32Abb83338057e5c9e"
+    }
+  };
+
+  const selectedChainId = chainId ? Number(chainId) : 31337;
+  const config = NETWORKS[selectedChainId] || NETWORKS[31337];
+
+  const rpcUrl = process.env.RPC_URL || config.rpc;
+  const contractAddress = process.env.QUANTUM_IDENTITY_ADDRESS || config.address;
+
+  console.log(`🌐 Bridging profile: Connecting to RPC ${rpcUrl} for contract ${contractAddress} (Chain ID: ${selectedChainId})...`);
+
   try {
-    const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
     let signer;
 
     if (process.env.OPENBAO_USE_TRANSIT === "true" && process.env.OPENBAO_URL && process.env.OPENBAO_TOKEN) {
@@ -254,7 +281,7 @@ export async function bridgeToBlockchain(citizenAddress, identityType) {
       signer = new ethers.Wallet(key, provider);
     }
 
-    const contract = new ethers.Contract(QUANTUM_IDENTITY_ADDRESS, quantumIdentityAbi, signer);
+    const contract = new ethers.Contract(contractAddress, quantumIdentityAbi, signer);
 
     console.log(`Submitting on-chain verification tx for citizen ${citizenAddress}...`);
     const tx = await contract.verifyCitizen(citizenAddress, Number(identityType));

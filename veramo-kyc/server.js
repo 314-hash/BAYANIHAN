@@ -69,7 +69,7 @@ app.post('/api/kyc/verify', async (req, res) => {
  * Verify a Verifiable Credential and Bridge the verified state on-chain
  */
 app.post('/api/kyc/bridge', async (req, res) => {
-  const { vc } = req.body;
+  const { vc, chainId } = req.body;
 
   if (!vc) {
     return res.status(400).json({ error: 'Missing parameter: vc.' });
@@ -84,9 +84,9 @@ app.post('/api/kyc/bridge', async (req, res) => {
     }
 
     const { citizenAddress, identityType } = verifyResult.subject;
-    console.log(`🔗 Bridging verified profile on-chain for ${citizenAddress}...`);
+    console.log(`🔗 Bridging verified profile on-chain for ${citizenAddress} (Chain ID: ${chainId})...`);
     
-    const bridgeResult = await bridgeToBlockchain(citizenAddress, identityType);
+    const bridgeResult = await bridgeToBlockchain(citizenAddress, identityType, chainId);
     res.json({
       success: true,
       verifyResult,

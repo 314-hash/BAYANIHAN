@@ -565,10 +565,20 @@ function setupKycEvents() {
 
     try {
       showToast("Verification & Bridge", "Verifying VC and submitting on-chain transaction...", "info");
+      
+      let activeChainId = 31337;
+      if (provider) {
+        const activeNetwork = await provider.getNetwork().catch(() => null);
+        if (activeNetwork) activeChainId = Number(activeNetwork.chainId);
+      }
+
       const res = await fetch(`${getKycApiUrl()}/api/kyc/bridge`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vc: currentSignedVc })
+        body: JSON.stringify({ 
+          vc: currentSignedVc,
+          chainId: activeChainId
+        })
       });
 
       if (!res.ok) {
@@ -775,10 +785,20 @@ async function handleOnboardingSubmit(e) {
 
     // 2/2: On-chain Verification & Bridging
     elements.onboardStatusMsg.innerText = "2/2: Verifying credential & bridging on-chain via validator...";
+    
+    let activeChainId = 31337;
+    if (provider) {
+      const activeNetwork = await provider.getNetwork().catch(() => null);
+      if (activeNetwork) activeChainId = Number(activeNetwork.chainId);
+    }
+
     const bridgeRes = await fetch(`${getKycApiUrl()}/api/kyc/bridge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vc: signedVc })
+      body: JSON.stringify({ 
+        vc: signedVc,
+        chainId: activeChainId
+      })
     });
 
     if (!bridgeRes.ok) {

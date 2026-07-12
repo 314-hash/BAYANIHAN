@@ -38,6 +38,7 @@
       
       <div class="wallet-actions">
         <div id="netStatus" class="network-badge">Local Simulator</div>
+        <button id="addTokenBtn" class="connect-btn" style="display: none; background: transparent; border: 1px solid var(--gold); color: var(--gold);">Add BAYANI</button>
         <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
         <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
       </div>
@@ -226,6 +227,7 @@
         <button class="tab-link" data-tab="tab-escrow">💼 Escrow</button>
         <button class="tab-link" data-tab="tab-governance">🏘️ Governance</button>
         <button class="tab-link" data-tab="tab-diaspora">🌏 Diaspora & RWAs</button>
+        <button class="tab-link" data-tab="tab-swap">💱 Swap</button>
       </nav>
 
       <!-- Tab Content 1: Supply Chains (Farmer & Fisherfolk) -->
@@ -489,6 +491,104 @@
         </div>
       </div>
 
+      <!-- Tab Content 6: Swap Portal (PancakeSwap DEX) -->
+      <div id="tab-swap" class="tab-content">
+        <div class="portal-grid" style="display: flex; justify-content: center; width: 100%;">
+          <div class="card" style="width: 100%; max-width: 480px; margin: 0 auto;">
+            <h3 class="card-title">💱 Quick Swap (PancakeSwap) <span class="help-tooltip-trigger" data-tooltip="Swap BNB to BAYANI instantly via PancakeSwap Router.">ℹ️</span></h3>
+            <p class="section-desc">Convert BNB to BAYANI and vice versa instantly, routing through the PancakeSwap V2 Router on BNB Smart Chain.</p>
+            
+            <div class="swap-widget" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+              
+              <!-- Swap From Block -->
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                  <label for="swapFromAmount">From</label>
+                  <span>Balance: <span id="swapFromBalance">0.00</span></span>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                  <input type="number" id="swapFromAmount" placeholder="0.0" class="form-input" style="flex: 1; border: 0; background: transparent; font-size: 1.4rem; padding: 0; outline: none; box-shadow: none;" step="any" min="0">
+                  <select id="swapFromToken" class="form-input" style="width: 110px; border-color: rgba(255,255,255,0.1); background: var(--dark-bg); font-weight: 600;">
+                    <option value="BNB">BNB</option>
+                    <option value="BAYANI">BAYANI</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Direction Toggle Arrow -->
+              <div style="display: flex; justify-content: center; margin: -0.5rem 0;">
+                <button type="button" id="swapToggleBtn" class="secondary-btn" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; min-width: auto; display: flex; align-items: center; justify-content: center; font-size: 1rem; border-color: rgba(255,255,255,0.1); background: var(--dark-bg); color: var(--gold);">
+                  ↓
+                </button>
+              </div>
+
+              <!-- Swap To Block -->
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                  <label for="swapToAmount">To</label>
+                  <span>Balance: <span id="swapToBalance">0.00</span></span>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                  <input type="number" id="swapToAmount" placeholder="0.0" class="form-input" style="flex: 1; border: 0; background: transparent; font-size: 1.4rem; padding: 0; outline: none; box-shadow: none;" readonly>
+                  <select id="swapToToken" class="form-input" style="width: 110px; border-color: rgba(255,255,255,0.1); background: var(--dark-bg); font-weight: 600;" disabled>
+                    <option value="BAYANI">BAYANI</option>
+                    <option value="BNB">BNB</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Slippage Selector Block -->
+              <div class="slippage-selector-container" style="display: flex; flex-direction: column; gap: 0.4rem; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary);">
+                  <span>Slippage Tolerance</span>
+                  <span id="activeSlippageLabel" style="color: var(--gold); font-weight: 600;">Auto (Dynamic)</span>
+                </div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button type="button" class="secondary-btn slippage-btn active" id="autoSlippageToggle" style="flex: 1.2; padding: 0.35rem 0.2rem; font-size: 0.7rem; min-width: auto; height: auto; border-color: var(--gold); color: var(--gold);">Auto</button>
+                  <button type="button" class="secondary-btn slippage-btn" data-slippage="0.1" style="flex: 1; padding: 0.35rem 0.2rem; font-size: 0.7rem; min-width: auto; height: auto;">0.1%</button>
+                  <button type="button" class="secondary-btn slippage-btn" data-slippage="0.5" style="flex: 1; padding: 0.35rem 0.2rem; font-size: 0.7rem; min-width: auto; height: auto;">0.5%</button>
+                  <button type="button" class="secondary-btn slippage-btn" data-slippage="1.0" style="flex: 1; padding: 0.35rem 0.2rem; font-size: 0.7rem; min-width: auto; height: auto;">1.0%</button>
+                  <button type="button" class="secondary-btn slippage-btn" id="customSlippageToggle" style="flex: 1.2; padding: 0.35rem 0.2rem; font-size: 0.7rem; min-width: auto; height: auto;">Custom</button>
+                  
+                  <div id="customSlippageInputContainer" style="display: none; align-items: center; gap: 0.2rem; width: 75px; margin-left: auto;">
+                    <input type="number" id="customSlippageInput" class="form-input" style="padding: 0.25rem 0.4rem; font-size: 0.75rem; text-align: center; width: 100%; background: var(--dark-bg); border-color: rgba(255,255,255,0.1); color: var(--text-primary);" value="0.5" step="0.1" min="0.05" max="50" placeholder="%">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quote Details -->
+              <div id="swapQuoteBox" style="background: rgba(255,199,44,0.05); border: 1px dashed rgba(255,199,44,0.15); border-radius: 6px; padding: 0.75rem; font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Exchange Rate:</span>
+                  <span id="swapQuoteRate">1 BNB = 500,000 BAYANI</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Estimated Output:</span>
+                  <span id="swapQuoteOutput">0.00 BAYANI</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Slippage Tolerance:</span>
+                  <span id="quoteSlippageLabel">Auto (Dynamic)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Estimated Gas Cost:</span>
+                  <span id="swapGasCost">~0.00075 BNB</span>
+                </div>
+              </div>
+
+              <!-- Warning Notification Box -->
+              <div id="swapWarningBox" style="display: none; background: rgba(245,158,11,0.08); border: 1px dashed rgba(245,158,11,0.25); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.7rem; color: #fbbf24; margin-top: 0.5rem; text-align: center; line-height: 1.35;"></div>
+
+              <!-- Action Button -->
+              <button type="button" id="swapExecuteBtn" class="primary-btn" style="width: 100%; margin-top: 0.5rem; justify-content: center; font-size: 1rem; padding: 0.8rem;">
+                Connect Wallet to Swap
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
   </main>
 
@@ -516,6 +616,10 @@
     <button class="mob-nav-btn" data-tab="tab-diaspora" id="mobNav-diaspora">
       <span class="mob-nav-icon">🌏</span>
       <span class="mob-nav-label">OFW</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="tab-swap" id="mobNav-swap">
+      <span class="mob-nav-icon">💱</span>
+      <span class="mob-nav-label">Swap</span>
     </button>
   </nav>
 

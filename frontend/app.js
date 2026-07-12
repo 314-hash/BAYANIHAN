@@ -23,17 +23,18 @@ const CONTRACT_ADDRESSES = {
     AIReputationOracle:         "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
     NationalRewardsTreasury:    "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
     FarmerProsperity:           "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    FisherfolkRewards:          "0x0165878A594ca255338adfa4d48449f69242Eb8F", // Sequential local mock address
-    MSMEGrowth:                 "0xa513E6E4b8f2a923D98304ec87F64353c4D5C853", // Sequential local mock address
-    EducationRewards:           "0x2279B1c902393D1409c617C23BD08209ac46187b", // Sequential local mock address
+    FisherfolkRewards:          "0x0165878A594ca255338adfa4d48449f69242Eb8F", 
+    MSMEGrowth:                 "0xa513E6E4b8f2a923D98304ec87F64353c4D5C853", 
+    EducationRewards:           "0x2279B1c902393D1409c617C23BD08209ac46187b", 
     FreelancerEscrow:           "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-    RenewableEnergy:            "0x610178dA211CFEB8746279866C5433f822d1A863", // Sequential local mock address
-    BarangayDAO:                "0xB7f8BC63BbD1F107d722424faA2C498D4D47A9c3", // Sequential local mock address
-    HealthcareAssistance:       "0x9A9f24F34ef3990283C71F2bF26C6B0d4aAc3D84", // Sequential local mock address
-    HousingCooperative:         "0xdC31CcE08F837FE059Eb35924C7D4Faa870DB78A8", // Sequential local mock address
-    DiasporaNetwork:            "0x5FDB2315678afecb367F032D93f642f64180Ab4", // Sequential local mock address
-    NationalAssetTokenization:  "0xE7f1725E7734CE288f8367e1bb143e90bB3F0513", // Sequential local mock address
-    BayaniLegacy:               "0x9fe46736679D2d9A65f0992f2272DE9F3c7Fa6E1"  // Sequential local mock address
+    RenewableEnergy:            "0x610178dA211CFEB8746279866C5433f822d1A863", 
+    BarangayDAO:                "0xB7f8BC63BbD1F107d722424faA2C498D4D47A9c3", 
+    HealthcareAssistance:       "0x9A9f24F34ef3990283C71F2bF26C6B0d4aAc3D84", 
+    HousingCooperative:         "0xdC31CcE08F837FE059Eb35924C7D4Faa870DB78A8", 
+    DiasporaNetwork:            "0x5FDB2315678afecb367F032D93f642f64180Ab4", 
+    NationalAssetTokenization:  "0xE7f1725E7734CE288f8367e1bb143e90bB3F0513", 
+    BayaniLegacy:               "0x9fe46736679D2d9A65f0992f2272DE9F3c7Fa6E1",  
+    PancakeRouter:              "0x0000000000000000000000000000000000000000"
   },
   // Binance Smart Chain Testnet (97) - Deployed & Verified
   97: {
@@ -53,7 +54,8 @@ const CONTRACT_ADDRESSES = {
     HousingCooperative:         "0xFb674edb86a9448DE19e19B6672726b1F9edBf49",
     DiasporaNetwork:            "0x64BcF5650e4Fd3aEA51eb3CFcE7D6979c7b02e10",
     NationalAssetTokenization:  "0x95EC0CA8c4493BC268f799E95Cb016447f7DEf84",
-    BayaniLegacy:               "0xFaD12DC06eA3f4b54Ca1D8f11158Cf840845D167"
+    BayaniLegacy:               "0xFaD12DC06eA3f4b54Ca1D8f11158Cf840845D167",
+    PancakeRouter:              "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3"
   },
   // Binance Smart Chain Mainnet (56) - Deployed & Verified July 2026
   56: {
@@ -73,7 +75,8 @@ const CONTRACT_ADDRESSES = {
     HousingCooperative:         "0x23c5Ef9077aeb96da1230aD0C49Bdc79943cbFfA",
     DiasporaNetwork:            "0xa62Ad870d8BB023A0C26471Fdb5295308F53f842",
     NationalAssetTokenization:  "0x9C5516Bc084e57d174295c22a0fC27A00A92153d",
-    BayaniLegacy:               "0x3204A4143a953e21A9A51D54a5D1DfdCaa961Ef5"
+    BayaniLegacy:               "0x3204A4143a953e21A9A51D54a5D1DfdCaa961Ef5",
+    PancakeRouter:              "0x10ED43C718714eb63d5aA57B78B54704E256024E"
   }
 };
 // Active contract configuration pointer (default to Localhost)
@@ -116,8 +119,12 @@ const CONTRACT_ABIS = {
     "function disputeMilestone(uint256 projectId) external",
     "function claimMilestoneRefund(uint256 projectId) external",
     "function calculateContractFeeBps(address freelancer) view returns (uint256)"
+  ],
+  PancakeRouter: [
+    "function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)",
+    "function swapExactETHForTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable returns (uint256[] amounts)",
+    "function swapExactTokensForETH(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)"
   ]
-
 };
 
 // Application State
@@ -129,6 +136,9 @@ let state = {
   userRole: 1, // Default: Farmer (Type 1)
   stakedAmount: 0,
   simBalance: 1200, // Simulated BAYANI starting balance
+  simBnbBalance: 10, // Simulated BNB starting balance
+  slippage: 0.5, // Default slippage tolerance percentage
+  autoSlippage: true, // Default auto-slippage mode enabled
   creditScore: 680,
   reputationScore: 85,
   diasporaScore: 40,
@@ -232,6 +242,7 @@ let contracts = {};
 // DOM Elements
 const elements = {
   netStatus: document.getElementById("netStatus"),
+  addTokenBtn: document.getElementById("addTokenBtn"),
   connectWalletBtn: document.getElementById("connectWalletBtn"),
   statLocked: document.getElementById("statLocked"),
   statRewards: document.getElementById("statRewards"),
@@ -292,7 +303,27 @@ const elements = {
   onboardStatusMsg: document.getElementById("onboardStatusMsg"),
   onboardSubmitBtn: document.getElementById("onboardSubmitBtn"),
   skipOnboardBtn: document.getElementById("skipOnboardBtn"),
-  onboardIdFile: document.getElementById("onboardIdFile")
+  onboardIdFile: document.getElementById("onboardIdFile"),
+  swapFromAmount: document.getElementById("swapFromAmount"),
+  swapToAmount: document.getElementById("swapToAmount"),
+  swapFromToken: document.getElementById("swapFromToken"),
+  swapToToken: document.getElementById("swapToToken"),
+  swapToggleBtn: document.getElementById("swapToggleBtn"),
+  swapQuoteBox: document.getElementById("swapQuoteBox"),
+  swapQuoteRate: document.getElementById("swapQuoteRate"),
+  swapQuoteOutput: document.getElementById("swapQuoteOutput"),
+  swapExecuteBtn: document.getElementById("swapExecuteBtn"),
+  swapFromBalance: document.getElementById("swapFromBalance"),
+  swapToBalance: document.getElementById("swapToBalance"),
+  activeSlippageLabel: document.getElementById("activeSlippageLabel"),
+  customSlippageToggle: document.getElementById("customSlippageToggle"),
+  customSlippageInputContainer: document.getElementById("customSlippageInputContainer"),
+  customSlippageInput: document.getElementById("customSlippageInput"),
+  quoteSlippageLabel: document.getElementById("quoteSlippageLabel"),
+  autoSlippageToggle: document.getElementById("autoSlippageToggle"),
+  swapGasCost: document.getElementById("swapGasCost"),
+  swapWarningBox: document.getElementById("swapWarningBox"),
+  slippageBtns: document.querySelectorAll(".slippage-btn")
 };
 
 // Rating Stars State
@@ -312,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderProposals();
   renderLendingPools();
   renderRWAs();
+  setupSwapWidget();
   updateCreditGauge();
   
   // Try to detect MetaMask auto-connection or display simulator
@@ -322,6 +354,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   
   elements.connectWalletBtn.addEventListener("click", connectWallet);
+  
+  if (elements.addTokenBtn) {
+    elements.addTokenBtn.addEventListener("click", async () => {
+      if (!window.ethereum) return;
+      try {
+        const wasAdded = await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: activeAddresses.BayaniToken,
+              symbol: 'BAYANI',
+              decimals: 18,
+              image: 'https://raw.githubusercontent.com/314-hash/BAYANIHAN/main/frontend/assets/logo.png',
+            },
+          },
+        });
+        if (wasAdded) {
+          showToast("Token Added", "BAYANI token successfully added to wallet!", "success");
+        } else {
+          showToast("Addition Cancelled", "Token addition was cancelled.", "warning");
+        }
+      } catch (error) {
+        console.error(error);
+        showToast("Error", "Could not add token to wallet.", "error");
+      }
+    });
+  }
 });
 
 // Toast Helper
@@ -915,16 +975,20 @@ async function connectWallet() {
       activeAddresses = CONTRACT_ADDRESSES[31337];
       netName = "Hardhat Local Node";
       showToast("Connected to Localhost", "Using local node smart contract configurations.", "success");
+      if (elements.addTokenBtn) elements.addTokenBtn.style.display = "none";
     } else if (chainId === 97) {
       activeAddresses = CONTRACT_ADDRESSES[97];
       netName = "BSC Testnet";
       showToast("Connected to BSC Testnet", "Using BSC Testnet smart contract configurations.", "success");
+      if (elements.addTokenBtn) elements.addTokenBtn.style.display = "block";
     } else if (chainId === 56) {
       activeAddresses = CONTRACT_ADDRESSES[56];
       netName = "BSC Mainnet";
       showToast("Connected to BSC Mainnet", "Using BSC Mainnet smart contract configurations.", "success");
+      if (elements.addTokenBtn) elements.addTokenBtn.style.display = "block";
     } else {
       activeAddresses = CONTRACT_ADDRESSES[31337]; // Fallback
+      if (elements.addTokenBtn) elements.addTokenBtn.style.display = "none";
       showToast("Unknown Network", `Connected to Chain ID ${chainId}. Defaulting to localhost settings.`, "warning");
     }
     
@@ -941,6 +1005,12 @@ async function connectWallet() {
     contracts.AIReputationOracle = new ethers.Contract(activeAddresses.AIReputationOracle, CONTRACT_ABIS.AIReputationOracle, signer);
     contracts.FarmerProsperity = new ethers.Contract(activeAddresses.FarmerProsperity, CONTRACT_ABIS.FarmerProsperity, signer);
     contracts.FreelancerEscrow = new ethers.Contract(activeAddresses.FreelancerEscrow, CONTRACT_ABIS.FreelancerEscrow, signer);
+    
+    if (activeAddresses.PancakeRouter && activeAddresses.PancakeRouter !== "0x0000000000000000000000000000000000000000") {
+      contracts.PancakeRouter = new ethers.Contract(activeAddresses.PancakeRouter, CONTRACT_ABIS.PancakeRouter, signer);
+    } else {
+      contracts.PancakeRouter = null;
+    }
     
     await readOnChainState();
     
@@ -960,7 +1030,14 @@ async function readOnChainState() {
     const balance = await contracts.BayaniToken.balanceOf(state.userAddress);
     const balanceEth = ethers.formatEther(balance);
     state.simBalance = parseFloat(balanceEth);
-    showToast("Balances Loaded", `Token balance: ${parseFloat(balanceEth).toFixed(2)} BAYANI`, "success");
+    
+    // Check native BNB Balance
+    const bnbBalance = await provider.getBalance(state.userAddress);
+    const bnbBalanceEth = ethers.formatEther(bnbBalance);
+    state.bnbBalance = parseFloat(bnbBalanceEth);
+    
+    updateSwapBalances();
+    showToast("Balances Loaded", `Balances: ${parseFloat(balanceEth).toFixed(2)} BAYANI | ${parseFloat(bnbBalanceEth).toFixed(4)} BNB`, "success");
     
     // Check Citizenship Identity status
     const verified = await contracts.QuantumIdentity.isCitizenVerified(state.userAddress).catch(() => false);
@@ -1642,6 +1719,476 @@ window.buyRwaShare = function(id) {
   renderRWAs();
   showToast("RWA Share Purchased", `Successfully acquired 1 share of ${rwa.title}. Yield is structured as a direct discount/rebate on services, staying compliant with SEC classification rules.`, "success");
 };
+
+// -------------------------------------------------------------
+// PANCAKESWAP DEX SWAP WIDGET INTEGRATION
+// -------------------------------------------------------------
+
+const WBNB_ADDRESS = {
+  56: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // BSC Mainnet WBNB
+  97: "0xae13d989daC2f0debFFF460aC112a837C89BAa7c"  // BSC Testnet WBNB
+};
+
+function setupSwapWidget() {
+  if (!elements.swapFromAmount) return;
+
+  elements.swapFromAmount.addEventListener("input", updateSwapQuote);
+  elements.swapFromToken.addEventListener("change", () => {
+    elements.swapToToken.value = elements.swapFromToken.value === "BNB" ? "BAYANI" : "BNB";
+    updateSwapBalances();
+    updateSwapQuote();
+  });
+  elements.swapToggleBtn.addEventListener("click", toggleSwapDirection);
+  elements.swapExecuteBtn.addEventListener("click", executeSwap);
+
+  // Preset slippage buttons (0.1%, 0.5%, 1.0%)
+  elements.slippageBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      elements.slippageBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.borderColor = "";
+        b.style.color = "";
+      });
+      if (elements.autoSlippageToggle) {
+        elements.autoSlippageToggle.classList.remove("active");
+        elements.autoSlippageToggle.style.borderColor = "";
+        elements.autoSlippageToggle.style.color = "";
+      }
+      if (elements.customSlippageToggle) {
+        elements.customSlippageToggle.classList.remove("active");
+        elements.customSlippageToggle.style.borderColor = "";
+        elements.customSlippageToggle.style.color = "";
+      }
+      elements.customSlippageInputContainer.style.display = "none";
+
+      btn.classList.add("active");
+      btn.style.borderColor = "var(--gold)";
+      btn.style.color = "var(--gold)";
+
+      const val = parseFloat(btn.getAttribute("data-slippage"));
+      state.slippage = val;
+      state.autoSlippage = false;
+      elements.activeSlippageLabel.innerText = `${val}%`;
+      elements.quoteSlippageLabel.innerText = `${val}%`;
+      updateSwapQuote();
+    });
+  });
+
+  // Auto slippage toggle button
+  if (elements.autoSlippageToggle) {
+    elements.autoSlippageToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      elements.slippageBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.borderColor = "";
+        b.style.color = "";
+      });
+      if (elements.customSlippageToggle) {
+        elements.customSlippageToggle.classList.remove("active");
+        elements.customSlippageToggle.style.borderColor = "";
+        elements.customSlippageToggle.style.color = "";
+      }
+      elements.customSlippageInputContainer.style.display = "none";
+
+      elements.autoSlippageToggle.classList.add("active");
+      elements.autoSlippageToggle.style.borderColor = "var(--gold)";
+      elements.autoSlippageToggle.style.color = "var(--gold)";
+
+      state.autoSlippage = true;
+      elements.activeSlippageLabel.innerText = "Auto (Dynamic)";
+      elements.quoteSlippageLabel.innerText = "Auto (Dynamic)";
+      updateSwapQuote();
+    });
+  }
+
+  // Custom slippage toggle button
+  if (elements.customSlippageToggle) {
+    elements.customSlippageToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      elements.slippageBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.borderColor = "";
+        b.style.color = "";
+      });
+      if (elements.autoSlippageToggle) {
+        elements.autoSlippageToggle.classList.remove("active");
+        elements.autoSlippageToggle.style.borderColor = "";
+        elements.autoSlippageToggle.style.color = "";
+      }
+      elements.customSlippageToggle.classList.add("active");
+      elements.customSlippageToggle.style.borderColor = "var(--gold)";
+      elements.customSlippageToggle.style.color = "var(--gold)";
+      elements.customSlippageInputContainer.style.display = "flex";
+
+      const val = parseFloat(elements.customSlippageInput.value) || 0.5;
+      state.slippage = val;
+      state.autoSlippage = false;
+      elements.activeSlippageLabel.innerText = `${val}%`;
+      elements.quoteSlippageLabel.innerText = `${val}%`;
+      updateSwapQuote();
+    });
+  }
+
+  // Custom slippage input box value changes
+  if (elements.customSlippageInput) {
+    elements.customSlippageInput.addEventListener("input", (e) => {
+      let val = parseFloat(e.target.value);
+      if (isNaN(val) || val <= 0) val = 0.5;
+      if (val > 50) val = 50; // Cap slippage at 50% for safety
+      state.slippage = val;
+      state.autoSlippage = false;
+      elements.activeSlippageLabel.innerText = `${val}%`;
+      elements.quoteSlippageLabel.innerText = `${val}%`;
+      updateSwapQuote();
+    });
+  }
+  
+  updateSwapBalances();
+}
+
+function updateSwapBalances() {
+  if (!elements.swapFromBalance || !elements.swapToBalance) return;
+  
+  const fromToken = elements.swapFromToken.value;
+  
+  if (state.web3Connected) {
+    if (fromToken === "BNB") {
+      elements.swapFromBalance.innerText = `${parseFloat(state.bnbBalance || 0).toFixed(4)} BNB`;
+      elements.swapToBalance.innerText = `${parseFloat(state.simBalance || 0).toFixed(2)} BAYANI`;
+    } else {
+      elements.swapFromBalance.innerText = `${parseFloat(state.simBalance || 0).toFixed(2)} BAYANI`;
+      elements.swapToBalance.innerText = `${parseFloat(state.bnbBalance || 0).toFixed(4)} BNB`;
+    }
+  } else {
+    // Simulator Mode
+    if (fromToken === "BNB") {
+      elements.swapFromBalance.innerText = `${parseFloat(state.simBnbBalance || 10).toFixed(4)} BNB`;
+      elements.swapToBalance.innerText = `${parseFloat(state.simBalance || 1200).toFixed(2)} BAYANI`;
+    } else {
+      elements.swapFromBalance.innerText = `${parseFloat(state.simBalance || 1200).toFixed(2)} BAYANI`;
+      elements.swapToBalance.innerText = `${parseFloat(state.simBnbBalance || 10).toFixed(4)} BNB`;
+    }
+  }
+}
+
+async function updateSwapQuote() {
+  const fromAmount = parseFloat(elements.swapFromAmount.value);
+  if (isNaN(fromAmount) || fromAmount <= 0) {
+    elements.swapQuoteBox.style.display = "none";
+    elements.swapExecuteBtn.disabled = true;
+    elements.swapExecuteBtn.innerText = state.web3Connected ? "Enter Amount" : "Connect Wallet to Swap";
+    elements.swapToAmount.value = "";
+    if (elements.swapWarningBox) elements.swapWarningBox.style.display = "none";
+    return;
+  }
+
+  const fromToken = elements.swapFromToken.value;
+  const toToken = fromToken === "BNB" ? "BAYANI" : "BNB";
+
+  elements.swapQuoteBox.style.display = "flex";
+
+  if (state.web3Connected && contracts.PancakeRouter) {
+    // Live on-chain calculation using PancakeSwap Router
+    try {
+      const chainId = activeAddresses === CONTRACT_ADDRESSES[56] ? 56 : 97;
+      const wbnb = WBNB_ADDRESS[chainId];
+      const bayani = activeAddresses.BayaniToken;
+      const path = fromToken === "BNB" ? [wbnb, bayani] : [bayani, wbnb];
+      
+      const amountInWei = ethers.parseEther(fromAmount.toString());
+      const amountsOut = await contracts.PancakeRouter.getAmountsOut(amountInWei, path);
+      const estimatedOut = ethers.formatEther(amountsOut[amountsOut.length - 1]);
+      
+      elements.swapToAmount.value = parseFloat(estimatedOut).toFixed(fromToken === "BNB" ? 2 : 6);
+      elements.swapQuoteOutput.innerText = `${parseFloat(estimatedOut).toFixed(2)} ${toToken}`;
+      
+      const rate = parseFloat(estimatedOut) / fromAmount;
+      elements.swapQuoteRate.innerText = `1 ${fromToken} = ${rate.toFixed(4)} ${toToken}`;
+
+      // --- Dynamic Auto-Slippage Calculation ---
+      let poolSlippage = state.slippage;
+      if (state.autoSlippage) {
+        try {
+          const factoryAddress = await contracts.PancakeRouter.factory();
+          const factoryAbi = ["function getPair(address tokenA, address tokenB) view returns (address pair)"];
+          const factoryContract = new ethers.Contract(factoryAddress, factoryAbi, provider);
+          const pairAddress = await factoryContract.getPair(wbnb, bayani);
+          
+          if (pairAddress !== ethers.ZeroAddress) {
+            const pairAbi = [
+              "function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)",
+              "function token0() view returns (address)"
+            ];
+            const pairContract = new ethers.Contract(pairAddress, pairAbi, provider);
+            const reserves = await pairContract.getReserves();
+            const token0Address = await pairContract.token0();
+            
+            let reserveIn = 0n;
+            if (token0Address.toLowerCase() === path[0].toLowerCase()) {
+              reserveIn = reserves.reserve0;
+            } else {
+              reserveIn = reserves.reserve1;
+            }
+            
+            if (reserveIn > 0n) {
+              const impactRatio = parseFloat(fromAmount) / parseFloat(ethers.formatEther(reserveIn));
+              if (impactRatio < 0.005) {
+                poolSlippage = 0.5; // less than 0.5% reserves: 0.5% slippage
+              } else if (impactRatio < 0.02) {
+                poolSlippage = 1.0; // moderate impact: 1.0% slippage
+              } else if (impactRatio < 0.05) {
+                poolSlippage = 2.5; // high impact: 2.5% slippage
+              } else {
+                poolSlippage = 5.0; // extreme impact: 5.0% slippage
+              }
+            } else {
+              poolSlippage = 1.0;
+            }
+          } else {
+            poolSlippage = 1.0; // pair doesn't exist
+          }
+        } catch (e) {
+          console.warn("Could not calculate dynamic slippage, using fallback 1.0%", e);
+          poolSlippage = 1.0;
+        }
+        state.slippage = poolSlippage;
+      }
+
+      // --- Live Gas Fee Estimation ---
+      try {
+        const feeData = await provider.getFeeData().catch(() => null);
+        const gasPrice = feeData && feeData.gasPrice ? feeData.gasPrice : ethers.parseUnits("5", "gwei");
+        const gasLimit = fromToken === "BNB" ? 150000n : 200000n;
+        const gasCostWei = gasLimit * gasPrice;
+        const gasCostEth = ethers.formatEther(gasCostWei);
+        elements.swapGasCost.innerText = `~${parseFloat(gasCostEth).toFixed(5)} BNB`;
+      } catch (gasErr) {
+        elements.swapGasCost.innerText = "~0.00075 BNB";
+      }
+
+      // Update Action Button State
+      elements.swapExecuteBtn.disabled = false;
+      
+      if (fromToken === "BAYANI") {
+        const allowance = await contracts.BayaniToken.allowance(state.userAddress, activeAddresses.PancakeRouter);
+        if (allowance < amountInWei) {
+          elements.swapExecuteBtn.innerText = "Approve BAYANI";
+        } else {
+          elements.swapExecuteBtn.innerText = `Swap BAYANI to ${toToken}`;
+        }
+      } else {
+        elements.swapExecuteBtn.innerText = `Swap BNB to ${toToken}`;
+      }
+    } catch (err) {
+      console.error("Quote estimation error:", err);
+      elements.swapQuoteRate.innerText = "Error fetching rate";
+      elements.swapExecuteBtn.disabled = true;
+      elements.swapExecuteBtn.innerText = "Liquidity Pool Not Found";
+    }
+  } else {
+    // Simulated calculation (Constant rate: 1 BNB = 500,000 BAYANI)
+    const rate = fromToken === "BNB" ? 500000 : 1 / 500000;
+    const estimatedOut = fromAmount * rate;
+    
+    elements.swapToAmount.value = estimatedOut.toFixed(fromToken === "BNB" ? 2 : 6);
+    elements.swapQuoteOutput.innerText = `${estimatedOut.toLocaleString()} ${toToken}`;
+    elements.swapQuoteRate.innerText = `1 ${fromToken} = ${rate.toLocaleString(undefined, {maximumFractionDigits: 6})} ${toToken}`;
+
+    // Mock dynamic slippage based on trade size
+    if (state.autoSlippage) {
+      if (fromAmount < 5) {
+        state.slippage = 0.5;
+      } else if (fromAmount < 20) {
+        state.slippage = 1.5;
+      } else if (fromAmount < 50) {
+        state.slippage = 3.0;
+      } else {
+        state.slippage = 5.0;
+      }
+    }
+
+    // Mock gas fee
+    const mockGas = fromToken === "BNB" ? 0.00075 : 0.00095;
+    elements.swapGasCost.innerText = `~${mockGas.toFixed(5)} BNB (Simulated)`;
+    
+    elements.swapExecuteBtn.disabled = false;
+    elements.swapExecuteBtn.innerText = state.web3Connected ? "Execute Swap (Simulated)" : "Swap (Simulation Mode)";
+  }
+
+  // Update slippage labels in UI
+  const displaySlippage = state.autoSlippage ? `Auto (${state.slippage}%)` : `${state.slippage}%`;
+  if (elements.quoteSlippageLabel) elements.quoteSlippageLabel.innerText = displaySlippage;
+  if (elements.activeSlippageLabel) elements.activeSlippageLabel.innerText = displaySlippage;
+
+  handleSlippageWarnings();
+}
+
+function handleSlippageWarnings() {
+  if (!elements.swapWarningBox) return;
+  const val = state.slippage;
+
+  if (state.autoSlippage) {
+    if (val >= 5.0) {
+      elements.swapWarningBox.style.display = "block";
+      elements.swapWarningBox.innerText = `⚠️ Price Impact Alert: Large transaction relative to reserves. Slippage tolerance adjusted to ${val}% to ensure execution.`;
+    } else {
+      elements.swapWarningBox.style.display = "none";
+    }
+    return;
+  }
+
+  if (val > 5.0) {
+    elements.swapWarningBox.style.display = "block";
+    elements.swapWarningBox.innerText = `⚠️ High Slippage Warning: Setting slippage tolerance to ${val}% increases frontrunning/sandwich attack risks.`;
+  } else if (val < 0.1) {
+    elements.swapWarningBox.style.display = "block";
+    elements.swapWarningBox.innerText = `⚠️ Low Slippage Warning: Setting slippage tolerance to ${val}% might cause transaction reverts if the rate changes.`;
+  } else {
+    elements.swapWarningBox.style.display = "none";
+  }
+}
+
+async function executeSwap() {
+  const fromAmount = parseFloat(elements.swapFromAmount.value);
+  if (isNaN(fromAmount) || fromAmount <= 0) return;
+
+  const fromToken = elements.swapFromToken.value;
+  const toToken = fromToken === "BNB" ? "BAYANI" : "BNB";
+  const amountInWei = ethers.parseEther(fromAmount.toString());
+
+  elements.swapExecuteBtn.disabled = true;
+  elements.swapExecuteBtn.innerText = "Processing Transaction...";
+
+  if (state.web3Connected && contracts.PancakeRouter) {
+    try {
+      const chainId = activeAddresses === CONTRACT_ADDRESSES[56] ? 56 : 97;
+      const wbnb = WBNB_ADDRESS[chainId];
+      const bayani = activeAddresses.BayaniToken;
+      const path = fromToken === "BNB" ? [wbnb, bayani] : [bayani, wbnb];
+      
+      const deadline = Math.floor(Date.now() / 1000) + 600; // 10 minutes from now
+      const recipient = state.userAddress;
+
+      // Query PancakeSwap for estimated output to calculate exact amountOutMin
+      const amountsOut = await contracts.PancakeRouter.getAmountsOut(amountInWei, path);
+      const estimatedOut = amountsOut[amountsOut.length - 1];
+      const slippageFactor = 100 - (state.slippage || 0.5);
+      const amountOutMin = (estimatedOut * BigInt(Math.floor(slippageFactor * 100))) / BigInt(10000);
+
+      if (fromToken === "BNB") {
+        // Swap BNB to BAYANI
+        showToast("Swap Initiated", `Swapping BNB for BAYANI (Min Out: ${parseFloat(ethers.formatEther(amountOutMin)).toFixed(2)})...`, "info");
+        const tx = await contracts.PancakeRouter.swapExactETHForTokens(
+          amountOutMin,
+          path,
+          recipient,
+          deadline,
+          { value: amountInWei }
+        );
+        showToast("Tx Submitted", `Hash: ${tx.hash.substring(0, 10)}...`, "info");
+        await tx.wait();
+        showToast("Swap Complete", `Successfully swapped BNB to BAYANI!`, "success");
+      } else {
+        // Swap BAYANI to BNB
+        // Check allowance first
+        const allowance = await contracts.BayaniToken.allowance(state.userAddress, activeAddresses.PancakeRouter);
+        if (allowance < amountInWei) {
+          showToast("Approval Initiated", "Approving PancakeSwap Router to spend BAYANI...", "info");
+          const appTx = await contracts.BayaniToken.approve(activeAddresses.PancakeRouter, amountInWei);
+          await appTx.wait();
+          showToast("Approval Confirmed", "Router approved. You can now execute the swap.", "success");
+          updateSwapQuote();
+          return;
+        }
+
+        showToast("Swap Initiated", `Swapping BAYANI for BNB (Min Out: ${parseFloat(ethers.formatEther(amountOutMin)).toFixed(4)})...`, "info");
+        const tx = await contracts.PancakeRouter.swapExactTokensForETH(
+          amountInWei,
+          amountOutMin,
+          path,
+          recipient,
+          deadline
+        );
+        showToast("Tx Submitted", `Hash: ${tx.hash.substring(0, 10)}...`, "info");
+        await tx.wait();
+        showToast("Swap Complete", `Successfully swapped BAYANI to BNB!`, "success");
+      }
+      
+      await readOnChainState();
+      elements.swapFromAmount.value = "";
+      updateSwapQuote();
+    } catch (err) {
+      console.error(err);
+      showToast("Swap Error", err.reason || err.message || "Transaction failed.", "error");
+      updateSwapQuote();
+    }
+  } else {
+    // Local Simulation Mode
+    try {
+      const rate = fromToken === "BNB" ? 500000 : 1 / 500000;
+      const outputAmount = fromAmount * rate;
+
+      if (fromToken === "BNB") {
+        const currentBnb = state.web3Connected ? state.bnbBalance : state.simBnbBalance;
+        if (currentBnb < fromAmount) {
+          showToast("Swap Failed", "Insufficient BNB balance.", "error");
+          updateSwapQuote();
+          return;
+        }
+        if (state.web3Connected) {
+          state.bnbBalance -= fromAmount;
+          state.simBalance += outputAmount;
+        } else {
+          state.simBnbBalance -= fromAmount;
+          state.simBalance += outputAmount;
+        }
+      } else {
+        if (state.simBalance < fromAmount) {
+          showToast("Swap Failed", "Insufficient BAYANI balance.", "error");
+          updateSwapQuote();
+          return;
+        }
+        if (state.web3Connected) {
+          state.simBalance -= fromAmount;
+          state.bnbBalance += outputAmount;
+        } else {
+          state.simBalance -= fromAmount;
+          state.simBnbBalance += outputAmount;
+        }
+      }
+
+      updateSwapBalances();
+      showToast("Swap Success (Simulated)", `Converted ${fromAmount.toLocaleString()} ${fromToken} to ${outputAmount.toLocaleString()} ${toToken}`, "success");
+      elements.swapFromAmount.value = "";
+      updateSwapQuote();
+    } catch (err) {
+      console.error(err);
+      showToast("Swap Error", "Simulated swap failed.", "error");
+      updateSwapQuote();
+    }
+  }
+}
+
+function toggleSwapDirection() {
+  const currentFrom = elements.swapFromToken.value;
+  if (currentFrom === "BNB") {
+    elements.swapFromToken.value = "BAYANI";
+    elements.swapToToken.value = "BNB";
+  } else {
+    elements.swapFromToken.value = "BNB";
+    elements.swapToToken.value = "BAYANI";
+  }
+  
+  // Swap inputs
+  const fromVal = elements.swapFromAmount.value;
+  const toVal = elements.swapToAmount.value;
+  elements.swapFromAmount.value = toVal;
+  elements.swapToAmount.value = fromVal;
+  
+  updateSwapBalances();
+  updateSwapQuote();
+}
 
 /* ============================================================
    📱 MOBILE NAVIGATION & INTERACTION CONTROLLER

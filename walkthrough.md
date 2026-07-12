@@ -468,6 +468,8 @@ We developed and integrated a localized Swap Widget directly into the Bayanihan 
 *   **Slippage Controls:** Added UI preset buttons for **0.1%**, **0.5%**, and **1.0%** alongside an **Auto** (Dynamic) option (default) and a **Custom** toggle input field.
 *   **Amber Warning Banner:** Integrated a dynamic notification panel that displays real-time warning alerts for high slippage ( > 5.0% - frontrunning risk) or low slippage ( < 0.1% - transaction revert risk).
 *   **Gas Cost Row:** Added an "Estimated Gas Cost" display field within the price breakdown box.
+*   **URL Hash Routing:** Added deep-linking capabilities allowing users to open tab sections directly via browser address suffixes (e.g., `#swap` or `#msme`). Subscribes to `hashchange` events to synchronize state seamlessly.
+*   **Network Warning Block:** Added an overlay warning screen inside the Swap widget that blocks interactions if MetaMask is connected to an unsupported network chain, providing a direct "Switch to BSC Mainnet" switch handler.
 
 ### 2. Live On-Chain Router Integration
 *   **PancakeSwap Router ABI:** Added standard BEP-20 router signatures (`getAmountsOut`, `swapExactETHForTokens`, and `swapExactTokensForETH`) inside the contract ABI lists of [`app.js`](file:///c:/Users/janla/Bayanihan/frontend/app.js).

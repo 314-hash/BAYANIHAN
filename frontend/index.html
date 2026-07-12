@@ -494,7 +494,16 @@
       <!-- Tab Content 6: Swap Portal (PancakeSwap DEX) -->
       <div id="tab-swap" class="tab-content">
         <div class="portal-grid" style="display: flex; justify-content: center; width: 100%;">
-          <div class="card" style="width: 100%; max-width: 480px; margin: 0 auto;">
+          <div class="card" style="width: 100%; max-width: 480px; margin: 0 auto; position: relative;">
+            
+            <!-- Network Warning Overlay -->
+            <div id="swapNetworkOverlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.96); border-radius: 12px; z-index: 10; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.2);">
+              <span style="font-size: 2.5rem; margin-bottom: 1rem;">⚠️</span>
+              <h4 style="color: #ef4444; font-family: var(--font-header); font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600;">Unsupported Network Connection</h4>
+              <p class="section-desc" style="font-size: 0.8rem; line-height: 1.4; max-width: 320px; margin-bottom: 1.5rem; color: var(--text-secondary);">PancakeSwap routing for BAYANI is only supported on BNB Smart Chain (BSC). Switch your MetaMask provider network to proceed.</p>
+              <button type="button" id="swapSwitchNetworkBtn" class="primary-btn" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(255, 199, 44, 0.15);">Switch to BSC Mainnet</button>
+            </div>
+
             <h3 class="card-title">💱 Quick Swap (PancakeSwap) <span class="help-tooltip-trigger" data-tooltip="Swap BNB to BAYANI instantly via PancakeSwap Router.">ℹ️</span></h3>
             <p class="section-desc">Convert BNB to BAYANI and vice versa instantly, routing through the PancakeSwap V2 Router on BNB Smart Chain.</p>
             

@@ -323,6 +323,8 @@ const elements = {
   autoSlippageToggle: document.getElementById("autoSlippageToggle"),
   swapGasCost: document.getElementById("swapGasCost"),
   swapWarningBox: document.getElementById("swapWarningBox"),
+  swapNetworkOverlay: document.getElementById("swapNetworkOverlay"),
+  swapSwitchNetworkBtn: document.getElementById("swapSwitchNetworkBtn"),
   slippageBtns: document.querySelectorAll(".slippage-btn")
 };
 
@@ -349,6 +351,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // Try to detect MetaMask auto-connection or display simulator
   if (window.ethereum) {
     showToast("Web3 Ready", "MetaMask detected. Click 'Connect Wallet' to connect to local Hardhat node.", "info");
+    
+    // Auto-reload on chain switch to refresh config pointers
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload();
+    });
+    
+    // Handle switching accounts in MetaMask
+    window.ethereum.on('accountsChanged', (accounts) => {
+      if (accounts.length === 0) {
+        state.web3Connected = false;
+        elements.connectWalletBtn.innerText = "Connect Wallet";
+        elements.netStatus.innerText = "Simulator Mode";
+        elements.netStatus.classList.remove("web3-connected");
+        showToast("Wallet Disconnected", "Switched back to simulated mode.", "warning");
+        updateSwapQuote();
+      } else {
+        connectWallet();
+      }
+    });
   } else {
     showToast("Simulator Mode Active", "MetaMask not found. Running self-contained interactive simulation.", "info");
   }
@@ -405,6 +426,45 @@ function showToast(title, message, type = "info") {
   }, 5000);
 }
 
+const HASH_TO_TAB = {
+  "supply": "tab-supply",
+  "msme": "tab-msme",
+  "escrow": "tab-escrow",
+  "governance": "tab-governance",
+  "diaspora": "tab-diaspora",
+  "swap": "tab-swap"
+};
+
+const TAB_TO_HASH = {
+  "tab-supply": "supply",
+  "tab-msme": "msme",
+  "tab-escrow": "escrow",
+  "tab-governance": "governance",
+  "tab-diaspora": "diaspora",
+  "tab-swap": "swap"
+};
+
+function handleHashChange() {
+  const hash = window.location.hash.replace("#", "").toLowerCase();
+  const tabId = HASH_TO_TAB[hash];
+  if (tabId) {
+    const targetLink = Array.from(elements.tabLinks).find(l => l.getAttribute("data-tab") === tabId);
+    if (targetLink) {
+      elements.tabLinks.forEach(t => t.classList.remove("active"));
+      elements.tabContents.forEach(c => c.classList.remove("active"));
+      targetLink.classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+      showToast("Tab Loaded", `${targetLink.innerText} portal active.`, "info");
+
+      // Synchronize mobile bottom nav menu states
+      const mobNavBtns = document.querySelectorAll(".mob-nav-btn");
+      mobNavBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
+      });
+    }
+  }
+}
+
 // Tab Switching Setup
 function setupTabs() {
   elements.tabLinks.forEach(link => {
@@ -417,8 +477,23 @@ function setupTabs() {
       link.classList.add("active");
       document.getElementById(tabId).classList.add("active");
       showToast("Tab Loaded", `${link.innerText} portal active.`, "info");
+
+      // Update hash in URL
+      const hash = TAB_TO_HASH[tabId];
+      if (hash) {
+        window.location.hash = hash;
+      }
     });
   });
+
+  // Listen for hash changes
+  window.addEventListener("hashchange", handleHashChange);
+
+  // Trigger once on startup if hash is present
+  if (window.location.hash) {
+    // Wait for DOM layout to resolve
+    setTimeout(handleHashChange, 50);
+  }
 }
 
 // Help Banner Setup & Toggle Persistence
@@ -1844,6 +1919,37 @@ function setupSwapWidget() {
     });
   }
   
+  // Handle click on the network warning overlay button to request switching to BSC Mainnet
+  if (elements.swapSwitchNetworkBtn) {
+    elements.swapSwitchNetworkBtn.addEventListener("click", async () => {
+      if (!window.ethereum) return;
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x38' }] // Chain ID 56 (BSC Mainnet) in hex
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x38',
+                chainName: 'BNB Smart Chain Mainnet',
+                rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                blockExplorerUrls: ['https://bscscan.com']
+              }]
+            });
+          } catch (addError) {
+            console.error("Failed to add BSC Mainnet network:", addError);
+          }
+        }
+        console.error("Failed to switch BSC Mainnet network:", switchError);
+      }
+    });
+  }
+  
   updateSwapBalances();
 }
 
@@ -1873,6 +1979,24 @@ function updateSwapBalances() {
 }
 
 async function updateSwapQuote() {
+  // Check network connectivity first if wallet is connected
+  if (state.web3Connected && provider) {
+    try {
+      const network = await provider.getNetwork();
+      const chainId = Number(network.chainId);
+      const isSupported = (chainId === 56 || chainId === 97 || chainId === 31337 || chainId === 1337);
+      if (elements.swapNetworkOverlay) {
+        elements.swapNetworkOverlay.style.display = isSupported ? "none" : "flex";
+      }
+    } catch (e) {
+      console.warn("Failed to check network for overlay:", e);
+    }
+  } else {
+    if (elements.swapNetworkOverlay) {
+      elements.swapNetworkOverlay.style.display = "none";
+    }
+  }
+
   const fromAmount = parseFloat(elements.swapFromAmount.value);
   if (isNaN(fromAmount) || fromAmount <= 0) {
     elements.swapQuoteBox.style.display = "none";

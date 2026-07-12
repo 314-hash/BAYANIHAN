@@ -578,6 +578,15 @@ function setupKycEvents() {
       const data = await res.json();
       showToast("Bridging Success!", "On-chain QuantumIdentity registry updated.", "success");
 
+      // Save registration details to localStorage mapped by user address
+      const profilePayload = {
+        name: state.userAddress.toLowerCase() === "0x70997970c51812dc3a010c7d01b50e0d17dc79c8" ? "Maria Clara" : "Verified Profile",
+        nidHash: currentSignedVc.credentialSubject.nationalIdHash,
+        roleType: Number(currentSignedVc.credentialSubject.identityType),
+        vc: currentSignedVc
+      };
+      localStorage.setItem(`bayanihan_profile_${state.userAddress.toLowerCase()}`, JSON.stringify(profilePayload));
+
       // Update local profile visual details
       elements.profileNid.innerText = currentSignedVc.credentialSubject.nationalIdHash;
       elements.profileBio.innerText = "Verified Active (VC)";
@@ -696,6 +705,15 @@ async function handleOnboardingSubmit(e) {
     }
 
     const bridgeData = await bridgeRes.json();
+
+    // Save registration details to localStorage mapped by user address
+    const profilePayload = {
+      name: name,
+      nidHash: nidHash,
+      roleType: roleType,
+      vc: signedVc
+    };
+    localStorage.setItem(`bayanihan_profile_${state.userAddress.toLowerCase()}`, JSON.stringify(profilePayload));
 
     showToast("Onboarding Success!", "Soulbound ID successfully minted on-chain!", "success");
     
@@ -850,7 +868,20 @@ async function readOnChainState() {
       elements.simulateRole.value = type.toString();
       
       const profile = await contracts.QuantumIdentity.getCitizenProfile(state.userAddress);
-      elements.profileName.innerText = "On-Chain Profile";
+      
+      // Load saved registration details from localStorage based on active wallet address
+      const savedProfile = localStorage.getItem(`bayanihan_profile_${state.userAddress.toLowerCase()}`);
+      if (savedProfile) {
+        try {
+          const profileData = JSON.parse(savedProfile);
+          elements.profileName.innerText = profileData.name;
+        } catch (e) {
+          elements.profileName.innerText = "On-Chain Profile";
+        }
+      } else {
+        elements.profileName.innerText = "Verified Profile";
+      }
+
       elements.idBadge.innerText = `Verified Citizen (Type ${type})`;
       elements.profileNid.innerText = profile.nationalIdHash.substring(0, 15) + "...";
       elements.profileBio.innerText = "Verified Active";

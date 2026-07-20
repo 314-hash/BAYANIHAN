@@ -34,7 +34,7 @@ services:
         echo "OpenBao is online. Injecting validator private key..."
         curl --header "X-Vault-Token: your-bao-token-here" \
              --request POST \
-             --data '{"data":{"validator_private_key":"0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"}}' \
+             --data '{"data":{"validator_private_key":""}}' \
              http://openbao:8200/v1/secret/data/bayanihan/kyc
         echo "Secret successfully injected!"
 
